@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
  */
 export const GET = async () => {
   try {
-    const vendors = await prisma.vendorProfile.findMany({
+    const vendors = await (prisma.vendorProfile as any).findMany({
       orderBy: { brandName: "asc" },
       select: {
         brandName: true,
