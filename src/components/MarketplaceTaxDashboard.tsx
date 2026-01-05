@@ -45,21 +45,51 @@ export async function MarketplaceTaxDashboard() {
     }
   ];
 
+  const ossByCountry = commissions.reduce((acc: Record<string, number>, c: any) => {
+    if (c.isOss && c.destinationCountry) {
+      acc[c.destinationCountry] = (acc[c.destinationCountry] || 0) + Number(c.orderGrossTotal || 0);
+    }
+    return acc;
+  }, {});
+
+  const topOssCountries = Object.entries(ossByCountry)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 4);
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-      {stats.map((stat) => (
-        <div key={stat.label} className="bg-card border border-border-custom p-6 rounded-3xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-          <div className={`absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 rounded-full opacity-5 group-hover:scale-110 transition-transform ${stat.bgColor}`}></div>
-          <div className="flex items-center gap-3 mb-4">
-            <div className={`p-2 rounded-lg ${stat.bgColor} ${stat.color}`}>
-              <stat.icon size={20} />
+    <div className="space-y-6 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.map((stat) => (
+          <div key={stat.label} className="bg-card border border-border-custom p-6 rounded-3xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+            <div className={`absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 rounded-full opacity-5 group-hover:scale-110 transition-transform ${stat.bgColor}`}></div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className={`p-2 rounded-lg ${stat.bgColor} ${stat.color}`}>
+                <stat.icon size={20} />
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">{stat.label}</span>
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">{stat.label}</span>
+            <div className="text-3xl font-bold mb-2">{stat.value}</div>
+            <p className="text-[10px] text-text-secondary font-medium uppercase tracking-tighter">{stat.description}</p>
           </div>
-          <div className="text-3xl font-bold mb-2">{stat.value}</div>
-          <p className="text-[10px] text-text-secondary font-medium uppercase tracking-tighter">{stat.description}</p>
+        ))}
+      </div>
+
+      {topOssCountries.length > 0 && (
+        <div className="bg-stone-50/50 dark:bg-stone-900/10 border border-border-custom rounded-3xl p-6">
+          <div className="flex items-center gap-3 mb-4 text-purple-600">
+            <Globe size={18} />
+            <h3 className="text-[11px] font-bold uppercase tracking-widest">Global OSS Exposure Breakdown</h3>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {topOssCountries.map(([country, volume]) => (
+              <div key={country} className="flex flex-col">
+                <span className="text-2xl font-bold">€{volume.toFixed(2)}</span>
+                <span className="text-[10px] font-bold text-text-secondary uppercase">{country} Revenue</span>
+              </div>
+            ))}
+          </div>
         </div>
-      ))}
+      )}
     </div>
   );
 }
