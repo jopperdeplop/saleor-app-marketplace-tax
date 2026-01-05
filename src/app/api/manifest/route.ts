@@ -57,6 +57,11 @@ export const GET = async () => {
         `,
       },
     ],
+    brand: {
+      logo: {
+        default: `${process.env.APP_URL || "http://localhost:3000"}/app-icon.png`,
+      },
+    },
   };
 
   return NextResponse.json(manifest);
