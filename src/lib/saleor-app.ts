@@ -1,9 +1,10 @@
-import { SaleorApp } from "@saleor/app-sdk";
-import { FileAPL, VercelAPL } from "@saleor/app-sdk/APL";
+import { SaleorApp } from "@saleor/app-sdk/saleor-app";
+import { FileAPL } from "@saleor/app-sdk/APL/file";
+import { VercelKvApl } from "@saleor/app-sdk/APL/vercel-kv";
 
 const getApl = () => {
   if (process.env.APL === "vercel") {
-    return new VercelAPL();
+    return new VercelKvApl();
   }
   return new FileAPL();
 };
@@ -11,3 +12,4 @@ const getApl = () => {
 export const saleorApp = new SaleorApp({
   apl: getApl(),
 });
+

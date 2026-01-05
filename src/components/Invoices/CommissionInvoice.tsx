@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 
@@ -15,7 +16,13 @@ const styles = StyleSheet.create({
   reversed: { marginTop: 20, fontStyle: 'italic', color: '#666' }
 });
 
-export const CommissionInvoice = ({ order, vendor, commissionAmount }) => (
+interface CommissionInvoiceProps {
+  order: any;
+  vendor: any;
+  commissionAmount: number;
+}
+
+export const CommissionInvoice = ({ order, vendor, commissionAmount }: CommissionInvoiceProps) => (
   <Document>
     <Page size='A4' style={styles.page}>
       <View style={styles.header}>

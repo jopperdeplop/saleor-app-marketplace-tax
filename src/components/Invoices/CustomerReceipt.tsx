@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
 
@@ -36,7 +37,6 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   table: {
-    display: 'table',
     width: 'auto',
     borderStyle: 'solid',
     borderWidth: 0,
@@ -94,7 +94,13 @@ const styles = StyleSheet.create({
   }
 });
 
-export const CustomerReceipt = ({ order, vendor, items }) => (
+interface CustomerReceiptProps {
+  order: any;
+  vendor: any;
+  items: any[];
+}
+
+export const CustomerReceipt = ({ order, vendor, items }: CustomerReceiptProps) => (
   <Document>
     <Page size='A4' style={styles.page}>
       <View style={styles.header}>
