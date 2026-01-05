@@ -114,23 +114,18 @@ export async function syncVendors() {
     }
   `;
 
-  // Logic 2: Sync from Attributes (for marketplaces using product attributes)
-  // We look for attribute named "Brand" or "Vendor"
+  const BRAND_ATTRIBUTE_ID = "QXR0cmlidXRlOjQ0";
+
+  // Logic 2: Sync from Attributes (Specific ID)
   const attrQuery = `
-    query FetchAttributes {
-      attributes(filter: {search: "Brand"}, first: 5) {
-        edges {
-          node {
-            id
-            name
-            choices(first: 100) {
-              edges {
-                node {
-                  id
-                  name
-                  slug
-                }
-              }
+    query FetchAttributeChoices($id: ID!) {
+      attribute(id: $id) {
+        choices(first: 100) {
+          edges {
+            node {
+              id
+              name
+              slug
             }
           }
         }
@@ -141,23 +136,20 @@ export async function syncVendors() {
   let foundVendors: { id: string, name: string }[] = [];
 
   try {
-    // Attempt Attribute Sync first as it's more common for large catalogs
+    // 1. Fetch from specific attribute
     const attrResponse = await fetch(saleorApiUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-      body: JSON.stringify({ query: attrQuery }),
+      body: JSON.stringify({ query: attrQuery, variables: { id: BRAND_ATTRIBUTE_ID } }),
     });
-    const attrJson = await attrResponse.json();
-    const attrEdges = attrJson.data?.attributes?.edges || [];
+    const attrJson: any = await attrResponse.json();
+    const choices = attrJson.data?.attribute?.choices?.edges || [];
     
-    for (const edge of attrEdges) {
-      const choices = edge.node.choices?.edges || [];
-      choices.forEach((c: any) => {
-        foundVendors.push({ id: c.node.slug, name: c.node.name });
-      });
-    }
+    choices.forEach((c: any) => {
+      foundVendors.push({ id: c.node.slug, name: c.node.name });
+    });
 
-    // Then add Page-based vendors
+    // 2. Fetch from Pages (Page Type "Brand")
     let hasNextPage = true;
     let cursor = null;
     while (hasNextPage) {

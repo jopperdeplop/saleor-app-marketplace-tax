@@ -1,6 +1,6 @@
 import React from "react";
 import { prisma } from "@/lib/prisma";
-import { Receipt, TrendingUp, Landmark, Globe } from "lucide-react";
+import { Receipt, TrendingUp, Landmark, Globe, ShieldCheck } from "lucide-react";
 
 export async function MarketplaceTaxDashboard() {
   const commissions = await prisma.commission.findMany();
@@ -53,8 +53,10 @@ export async function MarketplaceTaxDashboard() {
   }, {});
 
   const topOssCountries = Object.entries(ossByCountry)
-    .sort(([, a], [, b]) => b - a)
+    .sort(([, a], [, b]) => (b as number) - (a as number))
     .slice(0, 4);
+
+  const settings = await prisma.systemSettings.findUnique({ where: { id: "global" } });
 
   return (
     <div className="space-y-6 mb-12">
@@ -74,22 +76,47 @@ export async function MarketplaceTaxDashboard() {
         ))}
       </div>
 
-      {topOssCountries.length > 0 && (
-        <div className="bg-stone-50/50 dark:bg-stone-900/10 border border-border-custom rounded-3xl p-6">
-          <div className="flex items-center gap-3 mb-4 text-purple-600">
-            <Globe size={18} />
-            <h3 className="text-[11px] font-bold uppercase tracking-widest">Global OSS Exposure Breakdown</h3>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {topOssCountries.map(([country, volume]) => (
-              <div key={country} className="flex flex-col">
-                <span className="text-2xl font-bold">€{volume.toFixed(2)}</span>
-                <span className="text-[10px] font-bold text-text-secondary uppercase">{country} Revenue</span>
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          {topOssCountries.length > 0 && (
+            <div className="xl:col-span-2 bg-stone-50/50 dark:bg-stone-900/10 border border-border-custom rounded-3xl p-6">
+              <div className="flex items-center gap-3 mb-4 text-purple-600">
+                <Globe size={18} />
+                <h3 className="text-[11px] font-bold uppercase tracking-widest">Global OSS Exposure Breakdown</h3>
               </div>
-            ))}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                {topOssCountries.map(([country, volume]) => (
+                  <div key={country} className="flex flex-col">
+                    <span className="text-2xl font-bold">€{(volume as number).toFixed(2)}</span>
+                    <span className="text-[10px] font-bold text-text-secondary uppercase">{country} Revenue</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="bg-white dark:bg-stone-900/40 border border-border-custom rounded-3xl p-6">
+              <div className="flex items-center gap-3 mb-4 text-stone-500">
+                <ShieldCheck size={18} />
+                <h3 className="text-[11px] font-bold uppercase tracking-widest">Legal Hub Information</h3>
+              </div>
+              <div className="space-y-3">
+                  <div>
+                      <div className="text-[9px] font-bold text-stone-400 uppercase">Entity Name</div>
+                      <div className="text-sm font-bold">{(settings as any)?.companyName || "Saleor Marketplace NL"}</div>
+                  </div>
+                  <div className="flex justify-between">
+                      <div>
+                          <div className="text-[9px] font-bold text-stone-400 uppercase">VAT Number</div>
+                          <div className="text-xs font-mono font-bold text-accent">{(settings as any)?.vatNumber || "NL812345678B01"}</div>
+                      </div>
+                      <div className="text-right">
+                          <div className="text-[9px] font-bold text-stone-400 uppercase">OSS Status</div>
+                          <div className="text-[10px] font-bold text-green-600 uppercase">Active Agent</div>
+                      </div>
+                  </div>
+              </div>
           </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }
