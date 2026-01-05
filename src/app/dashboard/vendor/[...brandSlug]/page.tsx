@@ -133,55 +133,76 @@ export default async function VendorDashboard({
         </div>
 
         <section className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm overflow-hidden">
-          <div className="px-8 py-6 border-b border-stone-200 dark:border-stone-800 flex justify-between items-center">
-            <h2 className="text-xl font-bold">Invoice History</h2>
+          <div className="px-8 py-6 border-b border-stone-200 dark:border-stone-800 flex justify-between items-center bg-stone-50/50 dark:bg-stone-950/20">
+            <div>
+                <h2 className="text-xl font-bold">Earnings & Commission History</h2>
+                <p className="text-xs text-stone-500 mt-1">Breakdown of gross sales and marketplace fees applied.</p>
+            </div>
             <button className="text-xs font-bold uppercase tracking-widest bg-stone-100 dark:bg-stone-800 px-4 py-2 rounded-full hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors">
-              Export CSV
+              Export History
             </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-stone-50 dark:bg-stone-950/50">
-                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500">Order ID</th>
-                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500">Type</th>
-                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500">Date</th>
-                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500 text-right">Action</th>
+                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500">Order</th>
+                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500">Gross Sale</th>
+                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500">Fee %</th>
+                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500">Calculation</th>
+                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500">Marketplace Fee</th>
+                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500 text-right">Invoices</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
-                {invoices.length === 0 ? (
+                {commissions.length === 0 ? (
                     <tr>
-                        <td colSpan={4} className="px-8 py-12 text-center text-stone-400 italic">
-                            No invoices generated yet for this vendor.
+                        <td colSpan={6} className="px-8 py-12 text-center text-stone-400 italic">
+                            No transactions record found.
                         </td>
                     </tr>
                 ) : (
-                    invoices.map((invoice: any) => (
-                    <tr key={invoice.id} className="hover:bg-stone-50/50 dark:hover:bg-stone-950/20 transition-colors">
-                        <td className="px-8 py-4 font-mono text-sm">{invoice.orderId}</td>
-                        <td className="px-8 py-4">
-                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                            invoice.type === 'CUSTOMER' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
-                        }`}>
-                            {invoice.type}
-                        </span>
-                        </td>
-                        <td className="px-8 py-4 text-sm text-stone-500">
-                        {new Date(invoice.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="px-8 py-4 text-right">
-                        <a 
-                            href={invoice.url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 text-accent font-bold text-sm hover:underline"
-                        >
-                            <Download size={14} /> Download
-                        </a>
-                        </td>
-                    </tr>
-                    ))
+                    commissions.map((comm: any) => {
+                        const orderInvoices = invoices.filter((inv: any) => inv.orderId === comm.orderId.split("-")[0]);
+                        return (
+                            <tr key={comm.id} className="hover:bg-stone-50/50 dark:hover:bg-stone-950/20 transition-colors">
+                                <td className="px-8 py-4 font-mono text-sm font-bold">#{comm.orderId.split("-")[0]}</td>
+                                <td className="px-8 py-4 font-medium text-sm">
+                                    €{Number(comm.orderGross).toFixed(2)}
+                                </td>
+                                <td className="px-8 py-4">
+                                    <span className="px-2 py-0.5 rounded-lg bg-stone-100 dark:bg-stone-800 text-[10px] font-bold">
+                                        {comm.rate}%
+                                    </span>
+                                </td>
+                                <td className="px-8 py-4 text-[10px] text-stone-500 font-mono">
+                                    {Number(comm.orderGross).toFixed(2)} × {comm.rate}%
+                                </td>
+                                <td className="px-8 py-4 font-bold text-sm text-accent">
+                                    -€{Number(comm.amount).toFixed(2)}
+                                </td>
+                                <td className="px-8 py-4 text-right">
+                                    <div className="flex flex-col items-end gap-1">
+                                        {orderInvoices.length === 0 ? (
+                                            <span className="text-[10px] text-stone-400 italic">Processing...</span>
+                                        ) : (
+                                            orderInvoices.map((inv: any) => (
+                                                <a 
+                                                    key={inv.id}
+                                                    href={inv.url} 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center gap-1 text-[10px] font-bold uppercase text-accent hover:underline"
+                                                >
+                                                    <Download size={10} /> {inv.type}
+                                                </a>
+                                            ))
+                                        )}
+                                    </div>
+                                </td>
+                            </tr>
+                        );
+                    })
                 )}
               </tbody>
             </table>
