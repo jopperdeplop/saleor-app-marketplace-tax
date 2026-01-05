@@ -88,29 +88,49 @@ export async function registerVendor(formData: FormData) {
 }
 
 export async function syncVendors() {
-
   const apl = new PrismaAPL();
   const authRecords = await apl.getAll(); 
 
   if (authRecords.length === 0) {
-    throw new Error("No Saleor API connected.");
+    console.error("No Saleor API connected found in database.");
+    throw new Error("No Saleor API connected. Please re-install the app in your Saleor Dashboard to re-authorize.");
   }
 
   const { saleorApiUrl, token } = authRecords[0];
 
-  const query = `
+  // Logic 1: Sync from Pages (for marketplaces using pages as vendor profiles)
+  const pageQuery = `
     query FetchBrands($after: String) {
       pages(first: 100, after: $after) {
-        pageInfo {
-          hasNextPage
-          endCursor
-        }
+        pageInfo { hasNextPage, endCursor }
         edges {
           node {
             id
             title
-            pageType {
-              name
+            pageType { name }
+          }
+        }
+      }
+    }
+  `;
+
+  // Logic 2: Sync from Attributes (for marketplaces using product attributes)
+  // We look for attribute named "Brand" or "Vendor"
+  const attrQuery = `
+    query FetchAttributes {
+      attributes(filter: {search: "Brand"}, first: 5) {
+        edges {
+          node {
+            id
+            name
+            choices(first: 100) {
+              edges {
+                node {
+                  id
+                  name
+                  slug
+                }
+              }
             }
           }
         }
@@ -118,62 +138,69 @@ export async function syncVendors() {
     }
   `;
 
-  let hasNextPage = true;
-  let cursor = null;
-  let allPages: any[] = [];
+  let foundVendors: { id: string, name: string }[] = [];
 
-  while (hasNextPage) {
-    const response: Response = await fetch(saleorApiUrl, {
+  try {
+    // Attempt Attribute Sync first as it's more common for large catalogs
+    const attrResponse = await fetch(saleorApiUrl, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-      },
-      body: JSON.stringify({ 
-        query,
-        variables: { after: cursor }
-      }),
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+      body: JSON.stringify({ query: attrQuery }),
     });
-
-    const json: any = await response.json();
-    const data: any = json.data?.pages;
+    const attrJson = await attrResponse.json();
+    const attrEdges = attrJson.data?.attributes?.edges || [];
     
-    if (data?.edges) {
-
-      const pageNodes = data.edges.map((e: any) => e.node);
-      allPages = [...allPages, ...pageNodes];
+    for (const edge of attrEdges) {
+      const choices = edge.node.choices?.edges || [];
+      choices.forEach((c: any) => {
+        foundVendors.push({ id: c.node.slug, name: c.node.name });
+      });
     }
 
-    hasNextPage = data?.pageInfo?.hasNextPage || false;
-    cursor = data?.pageInfo?.endCursor || null;
+    // Then add Page-based vendors
+    let hasNextPage = true;
+    let cursor = null;
+    while (hasNextPage) {
+      const pResponse: Response = await fetch(saleorApiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ query: pageQuery, variables: { after: cursor } }),
+      });
+      const pJson: any = await pResponse.json();
+      const pData: any = pJson.data?.pages;
+      
+      if (pData?.edges) {
+        pData.edges.filter((e: any) => e.node.pageType?.name === "Brand").forEach((e: any) => {
+          foundVendors.push({ id: e.node.id, name: e.node.title });
+        });
+      }
+      hasNextPage = pData?.pageInfo?.hasNextPage || false;
+      cursor = pData?.pageInfo?.endCursor || null;
+    }
+  } catch (err) {
+    console.error("Saleor Sync Fetch Error:", err);
   }
 
-  // Filter for pages with Page Type "Brand"
-  const brandPages = allPages.filter((p: any) => p.pageType?.name === "Brand");
-
-  let count = 0;
-  
-  // Get default rate
+  // Deduplicate and Persist
+  const uniqueVendors = Array.from(new Map(foundVendors.map(v => [v.id, v])).values());
   const globalSettings = await (prisma as any).systemSettings.findUnique({ where: { id: "global" } });
   const defaultRate = globalSettings?.defaultCommissionRate ?? 10.0;
 
-  for (const page of brandPages) {
-    await prisma.vendorProfile.upsert({
-      where: { brandAttributeValue: page.id },
-      update: {
-        brandName: page.title, 
-      },
+  for (const v of uniqueVendors) {
+    await (prisma.vendorProfile as any).upsert({
+      where: { brandAttributeValue: v.id },
+      update: { brandName: v.name },
       create: {
-        brandAttributeValue: page.id,
-        brandName: page.title,
+        brandAttributeValue: v.id,
+        brandName: v.name,
         commissionRate: defaultRate,
+        countryCode: "NL"
       },
     });
-    count++;
   }
 
   revalidatePath("/");
-  return { success: true, count };
+  return { success: true, count: uniqueVendors.length };
 }
 
 

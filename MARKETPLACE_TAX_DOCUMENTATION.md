@@ -38,9 +38,17 @@ The system tracks **Order Gross**, **Order Net**, and **Order VAT** totals for e
 - This data is essential for the marketplace or the vendor to file **Union OSS** returns when selling to consumers across EU borders.
 - The **Financial Audit Log** provides a granular breakdown (Reference, Revenue, Fee Net, Fee Tax) required for quarterly tax audits in the Netherlands.
 
-### 4. Technical Implementation
+### 4. Vendor Tax Intelligence & OSS Reporting
 
-- **Prisma Schema**: Expanded to include `commissionNet`, `commissionVat`, and `orderGrossTotal`.
+The system automatically generates a **Union OSS Report** for vendors:
+
+- **Destination Tracking**: Every sale is logged with its destination country (`destinationCountry`).
+- **OSS Aggregation**: Sales are grouped by EU country, with pre-calculated **Revenue Gross** and **Order VAT** totals.
+- **Vendor Benefit**: This eliminates manual data entry for quarterly VAT returns, as the platform provides the exact figures needed for the "OSS Import" in accounting software.
+
+### 5. Technical Implementation
+
+- **Prisma Schema**: Expanded to include `commissionNet`, `commissionVat`, `orderGrossTotal`, `destinationCountry`, `isOss`, and `orderVatRate`.
 - **Validation Engine**: Automated logic in `commission.ts` determines the VAT treatment based on the vendor's `countryCode` and `isVatVerified` status.
 
 ### **Vendor Management & Overrides**

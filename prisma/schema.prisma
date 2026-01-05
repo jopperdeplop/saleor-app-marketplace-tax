@@ -22,7 +22,8 @@ model SystemSettings {
   addressZip            String?  @default("1016 CJ")
   addressCountry        String?  @default("NL")
   
-  ossEnabled            Boolean  @default(true) // EU One-Stop Shop status
+  ossEnabled            Boolean  @default(true)
+  ossThreshold          Decimal  @default(10000.00) @db.Decimal(12, 2)
   
   updatedAt             DateTime @updatedAt
 }
@@ -34,8 +35,10 @@ model VendorProfile {
   
   // Tax Details
   vatNumber             String?
-  countryCode           String   @default("NL") // ISO code for VAT logic
+  countryCode           String   @default("NL")
   isVatVerified         Boolean  @default(false)
+  vatVerifiedAt         DateTime?
+  companyType           CompanyType @default(BUSINESS)
   address               String?
 
   commissionRate        Float    @default(10.0)
@@ -48,6 +51,11 @@ model VendorProfile {
   commissions           Commission[]
 }
 
+enum CompanyType {
+  BUSINESS
+  INDIVIDUAL
+}
+
 model Commission {
   id              String         @id @default(cuid())
   orderId         String         @unique
@@ -58,10 +66,15 @@ model Commission {
   orderGrossTotal Decimal        @db.Decimal(12, 2)
   orderNetTotal   Decimal?       @db.Decimal(12, 2)
   orderVatTotal   Decimal?       @db.Decimal(12, 2)
+  orderVatRate    Float?         // The VAT rate applied to the order (e.g. 21.0)
   
-  commissionAmount Decimal       @db.Decimal(12, 2) // Total fee charged
-  commissionNet    Decimal?      @db.Decimal(12, 2) // Fee excluding VAT
-  commissionVat    Decimal?      @db.Decimal(12, 2) // VAT on the fee (Reverse Charge = 0)
+  // OSS Tracking
+  destinationCountry String?     // Target EU country for OSS reporting
+  isOss           Boolean        @default(false)
+
+  commissionAmount Decimal       @db.Decimal(12, 2)
+  commissionNet    Decimal?      @db.Decimal(12, 2)
+  commissionVat    Decimal?      @db.Decimal(12, 2)
   
   rate            Float?
   currency        String         @default("EUR")

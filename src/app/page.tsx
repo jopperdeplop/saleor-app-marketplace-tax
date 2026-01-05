@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Receipt, BarChart3, ShieldCheck, Zap, ArrowRight, Activity, Globe, Settings } from "lucide-react";
 
 import { VendorList } from "@/components/VendorList";
+import { MarketplaceTaxDashboard } from "@/components/MarketplaceTaxDashboard";
 
 export default function Home() {
   return (
@@ -30,6 +31,8 @@ export default function Home() {
               </Link>
           </div>
         </header>
+
+        <MarketplaceTaxDashboard />
 
         <VendorList />
 

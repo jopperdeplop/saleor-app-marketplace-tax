@@ -66,11 +66,18 @@ export const calculateAndRecordCommission = async (order: any) => {
       const brandGrossTotal = lines.reduce((acc, line) => acc + (line.totalPrice?.gross?.amount || 0), 0);
       const brandNetTotal = lines.reduce((acc, line) => acc + (line.totalPrice?.net?.amount || 0), 0);
       const brandVatTotal = brandGrossTotal - brandNetTotal;
+      
+      // Calculate effective VAT rate on the order for vendor reporting
+      const orderVatRate = brandNetTotal > 0 ? (brandVatTotal / brandNetTotal) * 100 : 0;
 
-      // 4. Calculate Commission (Marketplaced based on Gross as per industry standard)
+      // 4. OSS & Destination Tracking
+      const destinationCountry = order.shippingAddress?.country?.code || "NL";
+      const isOss = globalSettings.ossEnabled && destinationCountry !== vendor.countryCode;
+
+      // 5. Calculate Commission (Marketplaced based on Gross as per industry standard)
       const commissionNet = brandGrossTotal * (effectiveRate / 100);
       
-      // 5. Apply Tax on Commission (Marketplace Fee Tax logic)
+      // 6. Apply Tax on Commission (Marketplace Fee Tax logic)
       // Dutch Hub Rules:
       // - Vendor in NL: 21% VAT
       // - Vendor in EU (non-NL) with VAT Number: 0% (Reverse Charge)
@@ -79,8 +86,6 @@ export const calculateAndRecordCommission = async (order: any) => {
       if (vendor.countryCode !== "NL" && vendor.vatNumber && vendor.isVatVerified) {
         commissionVatRate = 0.0; // EU Reverse Charge
       } else if (vendor.countryCode !== "NL" && !vendor.vatNumber) {
-        // Technically dependent on B2B vs B2C, but marketplaces usually treat vendors as B2B.
-        // If they have no VAT ID, we charge NL standard VAT.
         commissionVatRate = 0.21;
       }
       
@@ -97,6 +102,9 @@ export const calculateAndRecordCommission = async (order: any) => {
           orderGrossTotal: brandGrossTotal,
           orderNetTotal: brandNetTotal,
           orderVatTotal: brandVatTotal,
+          orderVatRate: orderVatRate,
+          destinationCountry: destinationCountry,
+          isOss: isOss,
           rate: effectiveRate,
         },
         create: {
@@ -108,6 +116,9 @@ export const calculateAndRecordCommission = async (order: any) => {
           orderGrossTotal: brandGrossTotal,
           orderNetTotal: brandNetTotal,
           orderVatTotal: brandVatTotal,
+          orderVatRate: orderVatRate,
+          destinationCountry: destinationCountry,
+          isOss: isOss,
           rate: effectiveRate,
           currency: order.total?.gross?.currency || "EUR",
         }
