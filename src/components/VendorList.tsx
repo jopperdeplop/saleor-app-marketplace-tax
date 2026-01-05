@@ -133,7 +133,6 @@ export function VendorList() {
             <thead>
             <tr className="bg-stone-100 dark:bg-stone-950 text-stone-500 border-b border-border-custom">
                 <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest">Brand Name</th>
-                <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest">Saleor ID</th>
                 <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest">Commission</th>
                 <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-right">Action</th>
             </tr>
@@ -141,7 +140,7 @@ export function VendorList() {
             <tbody className="divide-y divide-border-custom">
             {filteredVendors.length === 0 ? (
                 <tr>
-                    <td colSpan={4} className="px-8 py-12 text-center text-text-secondary">
+                    <td colSpan={3} className="px-8 py-12 text-center text-text-secondary">
                         No vendors match your search.
                     </td>
                 </tr>
@@ -156,9 +155,6 @@ export function VendorList() {
                             <Link href={`/dashboard/vendor/${encodeURIComponent(vendor.brandAttributeValue)}`} className="font-bold text-lg hover:text-accent transition-colors block">
                                 {vendor.brandName}
                             </Link>
-                        </td>
-                        <td className="px-8 py-5 font-mono text-sm text-text-secondary">
-                            {vendor.brandAttributeValue}
                         </td>
                         <td className="px-8 py-5">
                             <div className="flex flex-col gap-1">
