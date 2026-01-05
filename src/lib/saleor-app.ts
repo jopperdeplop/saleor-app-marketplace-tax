@@ -4,7 +4,7 @@ import { FileAPL } from "@saleor/app-sdk/APL/file";
 import { VercelKvApl } from "@saleor/app-sdk/APL/vercel-kv";
 
 const getApl = () => {
-  if (process.env.APL === "vercel") {
+  if (process.env.APL === "vercel" && process.env.KV_URL) {
     return new VercelKvApl();
   }
   return new FileAPL();

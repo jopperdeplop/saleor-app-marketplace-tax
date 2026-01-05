@@ -18,38 +18,51 @@ export const calculateAndRecordCommission = async (order: any) => {
     brandGroups[brandValue].push(line);
   }
 
-  for (const [brandSlug, lines] of Object.entries(brandGroups)) {
-    let vendor = await prisma.vendorProfile.findUnique({
-      where: { brandAttributeValue: brandSlug }
-    });
+  return await prisma.$transaction(async (tx) => {
+    const results: any[] = [];
 
-    if (!vendor) {
-      vendor = await prisma.vendorProfile.create({
-        data: {
-          brandAttributeValue: brandSlug,
-          brandName: brandSlug.replace(/-/g, " "),
+    for (const [brandSlug, lines] of Object.entries(brandGroups)) {
+      let vendor = await tx.vendorProfile.findUnique({
+        where: { brandAttributeValue: brandSlug }
+      });
+
+      if (!vendor) {
+        vendor = await tx.vendorProfile.create({
+          data: {
+            brandAttributeValue: brandSlug,
+            brandName: brandSlug.replace(/-/g, " "),
+          }
+        });
+      }
+
+      const brandNetTotal = lines.reduce((acc, line) => {
+        return acc + (line.totalPrice?.net?.amount || 0);
+      }, 0);
+
+      const commissionAmount = brandNetTotal * (vendor.commissionRate / 100);
+
+      const commission = await tx.commission.upsert({
+        where: { orderId: `${order.id}-${brandSlug}` },
+        update: {
+          amount: commissionAmount,
+          vendorProfileId: vendor.id,
+        },
+        create: {
+          orderId: `${order.id}-${brandSlug}`,
+          vendorProfileId: vendor.id,
+          amount: commissionAmount,
+          currency: order.total?.gross?.currency || "EUR",
         }
+      });
+
+      results.push({
+        vendor,
+        lines,
+        commissionAmount,
+        commissionId: commission.id
       });
     }
 
-    const brandNetTotal = lines.reduce((acc, line) => {
-      return acc + (line.totalPrice?.net?.amount || 0);
-    }, 0);
-
-    const commissionAmount = brandNetTotal * (vendor.commissionRate / 100);
-
-    await prisma.commission.upsert({
-      where: { orderId: `${order.id}-${brandSlug}` },
-      update: {
-        amount: commissionAmount,
-        vendorProfileId: vendor.id,
-      },
-      create: {
-        orderId: `${order.id}-${brandSlug}`,
-        vendorProfileId: vendor.id,
-        amount: commissionAmount,
-        currency: order.total?.gross?.currency || "EUR",
-      }
-    });
-  }
+    return results;
+  });
 };
