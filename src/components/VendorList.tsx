@@ -29,16 +29,24 @@ export function VendorList() {
 
   return (
     <section className="bg-card border border-border-custom rounded-3xl p-8 md:p-12 mt-12">
-      <div className="flex items-center gap-4 mb-8">
-        <div className="p-3 bg-accent/10 rounded-xl text-accent">
-          <Users size={24} />
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-accent/10 rounded-xl text-accent">
+            <Users size={24} />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold font-serif">Vendor Portals</h2>
+            <p className="text-text-secondary text-sm">
+              Access individual vendor dashboards to view their specific financial data.
+            </p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-2xl font-bold font-serif">Vendor Portals</h2>
-          <p className="text-text-secondary text-sm">
-            Access individual vendor dashboards to view their specific financial data.
-          </p>
-        </div>
+        <Link 
+          href="/dashboard/register-vendor"
+          className="px-4 py-2 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2"
+        >
+          <Users size={14} /> Register New
+        </Link>
       </div>
 
       {loading ? (
