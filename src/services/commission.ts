@@ -18,7 +18,7 @@ export const calculateAndRecordCommission = async (order: any) => {
     brandGroups[brandValue].push(line);
   }
 
-  return await prisma.$transaction(async (tx) => {
+  return await prisma.$transaction(async (tx: any) => {
     // 1. Fetch Global Settings for default rate
     const globalSettings = await tx.systemSettings.upsert({
       where: { id: "global" },
@@ -30,16 +30,17 @@ export const calculateAndRecordCommission = async (order: any) => {
     const results: any[] = [];
 
     for (const [brandSlug, lines] of Object.entries(brandGroups)) {
-      let vendor = await tx.vendorProfile.findUnique({
+      let vendor: any = await tx.vendorProfile.findUnique({
         where: { brandAttributeValue: brandSlug }
       });
 
       if (!vendor) {
+         // Create vendor profile if it doesn't exist (reactive registration)
         vendor = await tx.vendorProfile.create({
           data: {
             brandAttributeValue: brandSlug,
             brandName: brandSlug.replace(/-/g, " "),
-            commissionRate: defaultRate, // Use global default for new vendors
+            commissionRate: defaultRate, 
           }
         });
       }
@@ -51,11 +52,12 @@ export const calculateAndRecordCommission = async (order: any) => {
       if (
         vendor.temporaryCommissionRate !== null &&
         vendor.temporaryCommissionEndsAt &&
-        vendor.temporaryCommissionEndsAt > now
+        new Date(vendor.temporaryCommissionEndsAt) > now
       ) {
         effectiveRate = vendor.temporaryCommissionRate;
       }
 
+      // Calculation logic: Currently uses NET amount (excluding taxes)
       const brandNetTotal = lines.reduce((acc, line) => {
         return acc + (line.totalPrice?.net?.amount || 0);
       }, 0);
@@ -67,11 +69,15 @@ export const calculateAndRecordCommission = async (order: any) => {
         update: {
           amount: commissionAmount,
           vendorProfileId: vendor.id,
+          orderGross: brandNetTotal,
+          rate: effectiveRate,
         },
         create: {
           orderId: `${order.id}-${brandSlug}`,
           vendorProfileId: vendor.id,
           amount: commissionAmount,
+          orderGross: brandNetTotal,
+          rate: effectiveRate,
           currency: order.total?.gross?.currency || "EUR",
         }
       });
