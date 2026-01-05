@@ -10,9 +10,14 @@
         "postinstall": "prisma generate"
     },
     "dependencies": {
+        "@opentelemetry/api": "^1.9.0",
+        "@opentelemetry/semantic-conventions": "^1.38.0",
         "@prisma/client": "^7.2.0",
         "@react-pdf/renderer": "^4.3.2",
         "@saleor/app-sdk": "^1.5.0",
+        "@vercel/blob": "^2.0.0",
+        "@vercel/kv": "^3.0.0",
+        "@vercel/postgres": "^0.10.0",
         "clsx": "^2.1.1",
         "graphql": "^16.12.0",
         "graphql-tag": "^2.12.6",
