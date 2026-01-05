@@ -1,8 +1,13 @@
 import { prisma } from "@/lib/prisma";
 
 export const getVendorData = async (brandSlug: string) => {
-  const vendor = await prisma.vendorProfile.findUnique({
-    where: { brandAttributeValue: brandSlug },
+  const vendor = await prisma.vendorProfile.findFirst({
+    where: {
+      OR: [
+        { brandAttributeValue: brandSlug },
+        { brandName: { equals: brandSlug, mode: 'insensitive' } }
+      ]
+    },
     include: {
       commissions: {
         orderBy: { createdAt: "desc" },
