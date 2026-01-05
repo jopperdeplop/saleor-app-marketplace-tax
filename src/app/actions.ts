@@ -4,7 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export async function updateGlobalSettings(formData: FormData) {
-  const rate = parseFloat(formData.get("defaultRate") as string);
+  const rateStr = formData.get("defaultRate");
+  if (!rateStr) return;
+  const rate = parseFloat(rateStr.toString());
   
   await prisma.systemSettings.upsert({
     where: { id: "global" },
@@ -18,11 +20,11 @@ export async function updateGlobalSettings(formData: FormData) {
 
 export async function updateVendorOverride(formData: FormData) {
   const brandSlug = formData.get("brandSlug") as string;
-  const tempRateStr = formData.get("tempRate") as string;
-  const endDateStr = formData.get("endDate") as string;
+  const tempRateStr = formData.get("tempRate");
+  const endDateStr = formData.get("endDate");
 
-  const tempRate = tempRateStr ? parseFloat(tempRateStr) : null;
-  const endDate = endDateStr ? new Date(endDateStr) : null;
+  const tempRate = tempRateStr && tempRateStr.toString() !== "" ? parseFloat(tempRateStr.toString()) : null;
+  const endDate = endDateStr && endDateStr.toString() !== "" ? new Date(endDateStr.toString()) : null;
 
   await prisma.vendorProfile.update({
     where: { brandAttributeValue: brandSlug },
