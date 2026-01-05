@@ -9,6 +9,7 @@ interface Vendor {
   brandName: string;
   brandAttributeValue: string;
   commissionRate: number;
+  countryCode: string;
   temporaryCommissionRate?: number | null;
   temporaryCommissionEndsAt?: string | null;
 }
@@ -132,9 +133,9 @@ export function VendorList() {
         <table className="w-full text-left border-collapse">
             <thead>
             <tr className="bg-stone-100 dark:bg-stone-950 text-stone-500 border-b border-border-custom">
-                <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest">Brand Name</th>
-                <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest">Commission</th>
-                <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-right">Action</th>
+                <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500/60">Tax Identity</th>
+                <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500/60">Fee Engine</th>
+                <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-right text-stone-500/60">Marketplace Hub</th>
             </tr>
             </thead>
             <tbody className="divide-y divide-border-custom">
@@ -151,39 +152,44 @@ export function VendorList() {
                     
                     return (
                         <tr key={vendor.brandAttributeValue} className="group hover:bg-stone-50 dark:hover:bg-stone-900 transition-colors">
-                        <td className="px-8 py-5">
-                            <Link href={`/dashboard/vendor/${encodeURIComponent(vendor.brandAttributeValue)}`} className="font-bold text-lg hover:text-accent transition-colors block">
-                                {vendor.brandName}
-                            </Link>
+                        <td className="px-8 py-6">
+                            <div className="flex items-center gap-3">
+                                <span className="w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-[10px] font-bold text-stone-500 border border-stone-200 dark:border-stone-700">
+                                    {vendor.countryCode}
+                                </span>
+                                <Link href={`/dashboard/vendor/${encodeURIComponent(vendor.brandAttributeValue)}`} className="font-bold text-lg hover:text-accent transition-colors block">
+                                    {vendor.brandName}
+                                </Link>
+                            </div>
                         </td>
-                        <td className="px-8 py-5">
+                        <td className="px-8 py-6">
                             <div className="flex flex-col gap-1">
                                 <div className="flex items-center gap-2">
-                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${hasActiveOverride ? 'bg-stone-100 dark:bg-stone-800 text-stone-400 line-through' : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'}`}>
+                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-bold border ${hasActiveOverride ? 'bg-stone-50 dark:bg-stone-800 text-stone-400 line-through border-stone-200 dark:border-stone-700' : 'bg-green-50 dark:bg-green-900/10 text-green-700 dark:text-green-400 border-green-100 dark:border-green-900/20'}`}>
                                        {vendor.commissionRate}%
                                     </span>
                                     {hasActiveOverride && (
                                         <ArrowRight size={12} className="text-stone-400" />
                                     )}
                                     {hasActiveOverride && (
-                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-accent/10 border border-accent/20 text-accent">
+                                        <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-bold bg-accent/10 border border-accent/20 text-accent">
                                             {vendor.temporaryCommissionRate}%
                                         </span>
                                     )}
                                 </div>
                                 {hasActiveOverride && (
-                                    <span className="text-[10px] font-medium text-stone-400 uppercase tracking-tighter">
+                                    <span className="text-[10px] font-bold text-accent uppercase tracking-tighter opacity-70">
                                         Ends {new Date(vendor.temporaryCommissionEndsAt!).toLocaleDateString()}
                                     </span>
                                 )}
                             </div>
                         </td>
-                        <td className="px-8 py-5 text-right">
+                        <td className="px-8 py-6 text-right">
                              <Link 
                                 href={`/dashboard/vendor/${encodeURIComponent(vendor.brandAttributeValue)}`}
-                                className="inline-flex items-center gap-1 text-sm font-bold text-text-secondary hover:text-accent transition-colors"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-stone-100/50 dark:bg-stone-800/50 hover:bg-accent hover:text-white rounded-xl text-xs font-bold uppercase tracking-widest transition-all group-hover:shadow-md active:scale-95"
                             >
-                                Manage <ArrowRight size={16} />
+                                Management Portal <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                             </Link>
                         </td>
                         </tr>

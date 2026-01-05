@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+/**
+ * Fetches all registered vendors for the marketplace dashboard.
+ * Includes active commission rates and tax residency info.
+ */
 export const GET = async () => {
   try {
     const vendors = await prisma.vendorProfile.findMany({
@@ -11,6 +15,7 @@ export const GET = async () => {
         commissionRate: true,
         temporaryCommissionRate: true,
         temporaryCommissionEndsAt: true,
+        countryCode: true,
       },
     });
 

@@ -19,14 +19,19 @@ export const calculateAndRecordCommission = async (order: any) => {
   }
 
   return await prisma.$transaction(async (tx: any) => {
-    // 1. Fetch Global Settings for default rate
+    // 1. Fetch Global Settings for default rate and marketplace info
     const globalSettings = await tx.systemSettings.upsert({
       where: { id: "global" },
       update: {},
-      create: { id: "global", defaultCommissionRate: 10.0 },
+      create: { 
+        id: "global", 
+        defaultCommissionRate: 10.0,
+        companyName: "Saleor Marketplace NL",
+        addressCountry: "NL"
+      },
     });
+    
     const defaultRate = globalSettings.defaultCommissionRate;
-
     const results: any[] = [];
 
     for (const [brandSlug, lines] of Object.entries(brandGroups)) {
@@ -35,12 +40,12 @@ export const calculateAndRecordCommission = async (order: any) => {
       });
 
       if (!vendor) {
-         // Create vendor profile if it doesn't exist (reactive registration)
         vendor = await tx.vendorProfile.create({
           data: {
             brandAttributeValue: brandSlug,
             brandName: brandSlug.replace(/-/g, " "),
-            commissionRate: defaultRate, 
+            commissionRate: defaultRate,
+            countryCode: "NL" // Default to NL until portal sync
           }
         });
       }
@@ -57,26 +62,52 @@ export const calculateAndRecordCommission = async (order: any) => {
         effectiveRate = vendor.temporaryCommissionRate;
       }
 
-      // Calculation logic: Uses GROSS amount (including taxes) to align with Amazon/Bol standards
-      const brandGrossTotal = lines.reduce((acc, line) => {
-        return acc + (line.totalPrice?.gross?.amount || 0);
-      }, 0);
+      // 3. Totals from Saleor Order Lines
+      const brandGrossTotal = lines.reduce((acc, line) => acc + (line.totalPrice?.gross?.amount || 0), 0);
+      const brandNetTotal = lines.reduce((acc, line) => acc + (line.totalPrice?.net?.amount || 0), 0);
+      const brandVatTotal = brandGrossTotal - brandNetTotal;
 
-      const commissionAmount = brandGrossTotal * (effectiveRate / 100);
+      // 4. Calculate Commission (Marketplaced based on Gross as per industry standard)
+      const commissionNet = brandGrossTotal * (effectiveRate / 100);
+      
+      // 5. Apply Tax on Commission (Marketplace Fee Tax logic)
+      // Dutch Hub Rules:
+      // - Vendor in NL: 21% VAT
+      // - Vendor in EU (non-NL) with VAT Number: 0% (Reverse Charge)
+      // - others: 21% VAT (standard)
+      let commissionVatRate = 0.21; 
+      if (vendor.countryCode !== "NL" && vendor.vatNumber && vendor.isVatVerified) {
+        commissionVatRate = 0.0; // EU Reverse Charge
+      } else if (vendor.countryCode !== "NL" && !vendor.vatNumber) {
+        // Technically dependent on B2B vs B2C, but marketplaces usually treat vendors as B2B.
+        // If they have no VAT ID, we charge NL standard VAT.
+        commissionVatRate = 0.21;
+      }
+      
+      const commissionVat = commissionNet * commissionVatRate;
+      const commissionTotalCharged = commissionNet + commissionVat;
 
       const commission = await tx.commission.upsert({
         where: { orderId: `${order.id}-${brandSlug}` },
         update: {
-          amount: commissionAmount,
+          commissionAmount: commissionTotalCharged,
+          commissionNet: commissionNet,
+          commissionVat: commissionVat,
           vendorProfileId: vendor.id,
-          orderGross: brandGrossTotal,
+          orderGrossTotal: brandGrossTotal,
+          orderNetTotal: brandNetTotal,
+          orderVatTotal: brandVatTotal,
           rate: effectiveRate,
         },
         create: {
           orderId: `${order.id}-${brandSlug}`,
           vendorProfileId: vendor.id,
-          amount: commissionAmount,
-          orderGross: brandGrossTotal,
+          commissionAmount: commissionTotalCharged,
+          commissionNet: commissionNet,
+          commissionVat: commissionVat,
+          orderGrossTotal: brandGrossTotal,
+          orderNetTotal: brandNetTotal,
+          orderVatTotal: brandVatTotal,
           rate: effectiveRate,
           currency: order.total?.gross?.currency || "EUR",
         }
@@ -85,7 +116,7 @@ export const calculateAndRecordCommission = async (order: any) => {
       results.push({
         vendor,
         lines,
-        commissionAmount,
+        commissionAmount: commissionTotalCharged,
         commissionId: commission.id
       });
     }

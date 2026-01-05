@@ -35,15 +35,10 @@ export default function Home() {
 
       </main>
 
-      <footer className="border-t border-border-custom px-6 py-12 bg-card">
+      <footer className="border-t border-border-custom px-6 py-8 bg-card">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="text-text-secondary text-sm">
-                &copy; 2026 Saleor Marketplace Tax System • Antigravity Ecosystem
-            </div>
-            <div className="flex gap-8 text-xs font-bold uppercase tracking-widest text-text-secondary">
-                <a href="#" className="hover:text-accent transition-colors">Security</a>
-                <a href="#" className="hover:text-accent transition-colors">Privacy</a>
-                <a href="#" className="hover:text-accent transition-colors">Terms</a>
+            <div className="text-text-secondary text-xs font-medium">
+                &copy; 2026 Saleor Marketplace Tax System
             </div>
         </div>
       </footer>

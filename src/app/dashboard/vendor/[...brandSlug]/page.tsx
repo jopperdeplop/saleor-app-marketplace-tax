@@ -121,13 +121,14 @@ export default async function VendorDashboard({
             </div>
         </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          <div className="bg-white dark:bg-stone-900 p-8 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+          <div className="bg-white dark:bg-stone-900 p-8 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm col-span-1 md:col-span-2">
             <CreditCard className="text-accent mb-4" size={32} />
-            <h3 className="text-lg font-bold mb-1">Total Commissions</h3>
+            <h3 className="text-lg font-bold mb-1">Total Marketplace Fees</h3>
             <p className="text-3xl font-bold">
-              €{commissions.reduce((acc: number, c: any) => acc + Number(c.amount), 0).toFixed(2)}
+              €{commissions.reduce((acc: number, c: any) => acc + Number(c.commissionAmount), 0).toFixed(2)}
             </p>
+            <p className="text-xs text-stone-500 mt-2 uppercase tracking-wide font-bold">Cumulative Net + VAT platform revenue</p>
           </div>
           <div className="bg-white dark:bg-stone-900 p-8 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm">
             <Clock className="text-stone-400 mb-4" size={32} />
@@ -136,66 +137,69 @@ export default async function VendorDashboard({
               {commissions.filter((c: any) => c.status === 'PENDING').length}
             </p>
           </div>
-          <div className="bg-white dark:bg-stone-900 p-8 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm">
+          <div className="bg-white dark:bg-stone-900 p-8 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-2 h-full bg-green-500 opacity-20 group-hover:opacity-100 transition-opacity"></div>
             <CheckCircle className="text-green-500 mb-4" size={32} />
-            <h3 className="text-lg font-bold mb-1">Vendor Status</h3>
-            <p className="text-3xl font-bold text-green-500">Verified</p>
+            <h3 className="text-lg font-bold mb-1">Tax Hub</h3>
+            <p className="text-2xl font-bold text-green-500">{vendor.countryCode} Hub</p>
+            <p className="text-[10px] text-stone-500 mt-1 uppercase font-bold">{vendor.vatNumber || "No VAT Number"}</p>
           </div>
         </div>
 
         <section className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm overflow-hidden">
           <div className="px-8 py-6 border-b border-stone-200 dark:border-stone-800 flex justify-between items-center bg-stone-50/50 dark:bg-stone-950/20">
             <div>
-                <h2 className="text-xl font-bold">Earnings & Commission History</h2>
-                <p className="text-xs text-stone-500 mt-1">Breakdown of gross sales and marketplace fees applied.</p>
+                <h2 className="text-xl font-bold uppercase tracking-tight font-serif">Financial Audit Log</h2>
+                <p className="text-xs text-stone-500 mt-1">OSS-compliant breakdown of EU marketplace transactions.</p>
             </div>
-            <button className="text-xs font-bold uppercase tracking-widest bg-stone-100 dark:bg-stone-800 px-4 py-2 rounded-full hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors">
-              Export History
-            </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-stone-50 dark:bg-stone-950/50">
-                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500">Order</th>
-                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500">Gross Sale</th>
-                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500">Fee %</th>
-                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500">Calculation</th>
-                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500">Marketplace Fee</th>
-                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500 text-right">Invoices</th>
+                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500">Reference</th>
+                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500 text-right">Order Gross</th>
+                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500">Fee Logic</th>
+                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500 text-right">Fee (Net)</th>
+                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500 text-right">Fee Tax</th>
+                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500 text-right">Total Fee</th>
+                  <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500 text-right">Doc</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
                 {commissions.length === 0 ? (
                     <tr>
-                        <td colSpan={6} className="px-8 py-12 text-center text-stone-400 italic">
-                            No transactions record found.
+                        <td colSpan={7} className="px-8 py-12 text-center text-stone-400 italic">
+                            No financial records found.
                         </td>
                     </tr>
                 ) : (
                     commissions.map((comm: any) => {
                         const orderInvoices = invoices.filter((inv: any) => inv.orderId === comm.orderId.split("-")[0]);
                         return (
-                            <tr key={comm.id} className="hover:bg-stone-50/50 dark:hover:bg-stone-950/20 transition-colors">
-                                <td className="px-8 py-4 font-mono text-sm font-bold">#{comm.orderId.split("-")[0]}</td>
-                                <td className="px-8 py-4 font-medium text-sm">
-                                    €{Number(comm.orderGross).toFixed(2)}
+                            <tr key={comm.id} className="hover:bg-stone-50/50 dark:hover:bg-stone-950/20 transition-colors group">
+                                <td className="px-8 py-6 font-mono text-[10px] font-bold">#{comm.orderId.split("-")[0]}</td>
+                                <td className="px-8 py-6 font-bold text-sm text-right">
+                                    €{Number(comm.orderGrossTotal).toFixed(2)}
                                 </td>
-                                <td className="px-8 py-4">
-                                    <span className="px-2 py-0.5 rounded-lg bg-stone-100 dark:bg-stone-800 text-[10px] font-bold">
+                                <td className="px-8 py-6">
+                                    <span className="px-2 py-1 rounded-lg bg-stone-100 dark:bg-stone-800 text-[10px] font-bold border border-stone-200 dark:border-stone-700">
                                         {comm.rate}%
                                     </span>
                                 </td>
-                                <td className="px-8 py-4 text-[10px] text-stone-500 font-mono">
-                                    {Number(comm.orderGross).toFixed(2)} × {comm.rate}%
+                                <td className="px-8 py-6 text-sm text-right font-medium text-stone-600 dark:text-stone-400">
+                                    €{Number(comm.commissionNet || 0).toFixed(2)}
                                 </td>
-                                <td className="px-8 py-4 font-bold text-sm text-accent">
-                                    -€{Number(comm.amount).toFixed(2)}
+                                <td className="px-8 py-6 text-[10px] text-right text-stone-500 font-mono">
+                                    {Number(comm.commissionVat) > 0 ? `€${Number(comm.commissionVat).toFixed(2)}` : 'REVERSE CHARGE'}
                                 </td>
-                                <td className="px-8 py-4 text-right">
-                                    <div className="flex flex-col items-end gap-1">
+                                <td className="px-8 py-6 font-bold text-sm text-accent text-right">
+                                    -€{Number(comm.commissionAmount).toFixed(2)}
+                                </td>
+                                <td className="px-8 py-6 text-right">
+                                    <div className="flex justify-end gap-2">
                                         {orderInvoices.length === 0 ? (
-                                            <span className="text-[10px] text-stone-400 italic">Processing...</span>
+                                            <span className="text-[10px] text-stone-400 italic uppercase">Syncing...</span>
                                         ) : (
                                             orderInvoices.map((inv: any) => (
                                                 <a 
@@ -203,9 +207,10 @@ export default async function VendorDashboard({
                                                     href={inv.url} 
                                                     target="_blank" 
                                                     rel="noopener noreferrer"
-                                                    className="inline-flex items-center gap-1 text-[10px] font-bold uppercase text-accent hover:underline"
+                                                    title={inv.type}
+                                                    className="p-1.5 rounded-lg border border-stone-200 dark:border-stone-700 text-accent hover:bg-accent hover:text-white transition-all shadow-sm"
                                                 >
-                                                    <Download size={10} /> {inv.type}
+                                                    <Download size={14} />
                                                 </a>
                                             ))
                                         )}

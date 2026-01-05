@@ -11,7 +11,37 @@ _For Platform Owners and Marketplace Managers_
 Admins have control over the baseline economics of the marketplace.
 
 - **Global Settings Access**: Located on the main dashboard of the Tax App.
-- **Default Commission Rate**: Set a global percentage (e.g., 10%) that applies automatically to all new vendors when they are first discovered by the system.
+- **Default Commission Rate**: Set a global percentage (e.g., 10%)
+
+## EU Marketplace Tax Engine (NL Hub)
+
+This application is architected as a **Netherlands-based Marketplace Hub**, designed to facilitate compliant trade between EU vendors and EU customers.
+
+### 1. Commission Calculation Logic
+
+Marketplace fees are calculated based on the **Gross Sale amount (including VAT)**.
+
+- **Rationale**: This aligns with industry standards used by major platforms like Amazon and Bol.com. It ensures the marketplace's revenue is tied to the total liquidity passing through the platform, simplifying reconciliation for vendors who operate with VAT-inclusive pricing.
+
+### 2. Marketplace Fee Tax Logic (VAT on Commission)
+
+Since the marketplace provides a service (intermediation), it must charge VAT on its commissions according to EU B2B rules:
+
+- **NL-based Vendors**: Subject to standard Dutch VAT (**21%**).
+- **EU-based Vendors (non-NL) with valid VAT ID**: Subject to the **Reverse Charge** mechanism (**0% VAT**). The vendor is responsible for reporting VAT in their own country.
+- **Others (Non-EU or No VAT ID)**: Treated as B2C or non-verified B2B, generally subject to **21% Dutch VAT**.
+
+### 3. One-Stop Shop (OSS) Compliance
+
+The system tracks **Order Gross**, **Order Net**, and **Order VAT** totals for every transaction.
+
+- This data is essential for the marketplace or the vendor to file **Union OSS** returns when selling to consumers across EU borders.
+- The **Financial Audit Log** provides a granular breakdown (Reference, Revenue, Fee Net, Fee Tax) required for quarterly tax audits in the Netherlands.
+
+### 4. Technical Implementation
+
+- **Prisma Schema**: Expanded to include `commissionNet`, `commissionVat`, and `orderGrossTotal`.
+- **Validation Engine**: Automated logic in `commission.ts` determines the VAT treatment based on the vendor's `countryCode` and `isVatVerified` status.
 
 ### **Vendor Management & Overrides**
 
