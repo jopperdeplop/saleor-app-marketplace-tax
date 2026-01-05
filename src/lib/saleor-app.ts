@@ -1,16 +1,8 @@
 // Saleor App SDK v1.5.0 Compatibility Layer
 import { SaleorApp } from "@saleor/app-sdk/saleor-app";
-import { FileAPL } from "@saleor/app-sdk/APL/file";
-import { VercelKvApl } from "@saleor/app-sdk/APL/vercel-kv";
-
-const getApl = () => {
-  if (process.env.APL === "vercel" && process.env.KV_URL) {
-    return new VercelKvApl();
-  }
-  return new FileAPL();
-};
+import { PrismaAPL } from "@/lib/prisma-apl";
 
 export const saleorApp = new SaleorApp({
-  apl: getApl(),
+  apl: new PrismaAPL(),
 });
 

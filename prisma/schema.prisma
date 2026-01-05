@@ -52,3 +52,14 @@ enum InvoiceType {
   CUSTOMER
   COMMISSION
 }
+
+// APL Storage for Scaleor App SDK
+model SaleorApp {
+  id           String   @id @default(cuid())
+  saleorApiUrl String   @unique // The domain for the Saleor instance
+  token        String   // The auth token
+  appId        String   // The app ID
+  jwks         String?  // JSON Web Key Set
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

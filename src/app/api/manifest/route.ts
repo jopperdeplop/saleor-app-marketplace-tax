@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import { AppManifest } from "@saleor/app-sdk/types";
 
 export const GET = async () => {
+  const appBaseUrl = process.env.APP_URL
+    ? process.env.APP_URL
+    : process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000";
+
   const manifest: AppManifest = {
     id: "saleor-app-marketplace-tax",
     version: "1.0.0",
@@ -10,14 +16,14 @@ export const GET = async () => {
       "MANAGE_ORDERS",
       "MANAGE_PRODUCTS",
     ],
-    appUrl: process.env.APP_URL || "http://localhost:3000",
-    tokenTargetUrl: `${process.env.APP_URL || "http://localhost:3000"}/api/register`,
+    appUrl: appBaseUrl,
+    tokenTargetUrl: `${appBaseUrl}/api/register`,
     extensions: [],
     webhooks: [
       {
         name: "Order Paid - Marketplace Tax Sync",
         asyncEvents: ["ORDER_PAID"],
-        targetUrl: `${process.env.APP_URL || "http://localhost:3000"}/api/webhooks/order-paid`,
+        targetUrl: `${appBaseUrl}/api/webhooks/order-paid`,
         query: `
           subscription {
             event {
@@ -59,7 +65,7 @@ export const GET = async () => {
     ],
     brand: {
       logo: {
-        default: `${process.env.APP_URL || "http://localhost:3000"}/app-icon.png`,
+        default: `${appBaseUrl}/app-icon.png`,
       },
     },
   };
