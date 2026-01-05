@@ -1,5 +1,7 @@
 import React from "react";
-import { Receipt, BarChart3, ShieldCheck, Zap, ArrowRight, Activity, Globe } from "lucide-react";
+import Link from "next/link";
+import { Receipt, BarChart3, ShieldCheck, Zap, ArrowRight, Activity, Globe, Settings } from "lucide-react";
+
 import { VendorList } from "@/components/VendorList";
 
 export default function Home() {
@@ -66,12 +68,18 @@ export default function Home() {
                 All core systems are synchronized with the Saleor instance. The engine is filtering orders by the Brand attribute.
               </p>
               <div className="flex flex-wrap gap-4">
-                <button className="px-6 py-3 rounded-lg bg-accent text-white font-bold hover:opacity-90 transition-all flex items-center gap-2">
-                  View App Manifest <ArrowRight size={18} />
-                </button>
-                <button className="px-6 py-3 rounded-lg bg-background border border-border-custom hover:bg-stone-100 dark:hover:bg-stone-800 transition-all font-bold">
-                  Documentation
-                </button>
+                <Link 
+                  href="/dashboard/settings"
+                  className="px-6 py-3 rounded-lg bg-accent text-white font-bold hover:opacity-90 transition-all flex items-center gap-2"
+                >
+                  <Settings size={18} /> Global Settings
+                </Link>
+                <Link 
+                   href="/api/manifest"
+                   className="px-6 py-3 rounded-lg bg-background border border-border-custom hover:bg-stone-100 dark:hover:bg-stone-800 transition-all font-bold flex items-center gap-2"
+                >
+                   Manifest
+                </Link>
               </div>
             </div>
           </section>

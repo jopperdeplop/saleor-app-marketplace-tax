@@ -10,6 +10,12 @@ datasource db {
   provider = "postgresql"
 }
 
+model SystemSettings {
+  id                    String   @id @default("global")
+  defaultCommissionRate Float    @default(10.0)
+  updatedAt             DateTime @updatedAt
+}
+
 model VendorProfile {
   id                    String   @id @default(cuid())
   brandAttributeValue   String   @unique // The ID or Slug of the Brand in Saleor
@@ -17,6 +23,8 @@ model VendorProfile {
   vatNumber             String?
   address               String?
   commissionRate        Float    @default(10.0)
+  temporaryCommissionRate   Float?
+  temporaryCommissionEndsAt DateTime?
   selfBillingAgreed     Boolean  @default(false)
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt

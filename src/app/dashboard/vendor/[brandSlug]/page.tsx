@@ -1,6 +1,7 @@
 import { getVendorData } from "@/services/vendor-dashboard";
 import { notFound } from "next/navigation";
-import { Receipt, CreditCard, Clock, CheckCircle, Download } from "lucide-react";
+import { Receipt, CreditCard, Clock, CheckCircle, Download, Zap, Calendar } from "lucide-react";
+import { updateVendorOverride } from "@/app/actions";
 
 export default async function VendorDashboard({
   params,
@@ -15,6 +16,12 @@ export default async function VendorDashboard({
   }
 
   const { vendor, commissions, invoices } = data;
+  
+  const now = new Date();
+  const hasActiveOverride = vendor.temporaryCommissionEndsAt && new Date(vendor.temporaryCommissionEndsAt) > now;
+  const effectiveRate = hasActiveOverride && vendor.temporaryCommissionRate !== null
+    ? vendor.temporaryCommissionRate 
+    : vendor.commissionRate;
 
   return (
     <div className="min-h-screen bg-stone-50 dark:bg-stone-950 p-6 md:p-12">
@@ -24,11 +31,69 @@ export default async function VendorDashboard({
             <h1 className="text-4xl font-bold font-serif mb-2">{vendor.brandName} Portal</h1>
             <p className="text-stone-500">View your commissions and download invoices.</p>
           </div>
-          <div className="bg-white dark:bg-stone-900 px-6 py-4 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-sm">
-            <span className="text-xs font-bold uppercase tracking-widest text-stone-400 block mb-1">Commission Rate</span>
-            <span className="text-2xl font-bold text-accent">{vendor.commissionRate}%</span>
+          <div className="bg-white dark:bg-stone-900 px-6 py-4 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-sm relative overflow-hidden group">
+            {hasActiveOverride && (
+              <div className="absolute top-0 right-0 bg-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
+                TEMP OVERRIDE
+              </div>
+            )}
+            <span className="text-xs font-bold uppercase tracking-widest text-stone-400 block mb-1">Effective Rate</span>
+            <div className="flex items-baseline gap-1">
+                <span className={`text-2xl font-bold ${hasActiveOverride ? "text-accent" : "text-stone-900 dark:text-white"}`}>
+                    {effectiveRate}%
+                </span>
+                {hasActiveOverride && (
+                    <span className="text-xs text-stone-400 line-through">{vendor.commissionRate}%</span>
+                )}
+            </div>
           </div>
         </header>
+
+        {/* Admin Override Control */}
+        <section className="mb-12 bg-white dark:bg-stone-900 p-8 rounded-3xl border border-dashed border-stone-300 dark:border-stone-700">
+            <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 rounded-lg">
+                    <Zap size={20} />
+                </div>
+                <div>
+                    <h3 className="text-lg font-bold">Commission Override</h3>
+                    <p className="text-sm text-stone-500">Temporarily lower or raise fees for this vendor.</p>
+                </div>
+            </div>
+            
+            <form action={updateVendorOverride} className="flex flex-col md:flex-row gap-4 items-end">
+                <input type="hidden" name="brandSlug" value={brandSlug} />
+                
+                <div className="w-full md:w-auto flex-1">
+                    <label className="block text-xs font-bold uppercase tracking-widest text-stone-500 mb-2">Temporary Rate (%)</label>
+                    <input 
+                        type="number" 
+                        step="0.01" 
+                        name="tempRate" 
+                        defaultValue={vendor.temporaryCommissionRate ?? ''}
+                        placeholder="e.g. 5.0"
+                        className="w-full bg-stone-50 dark:bg-stone-800 border-none rounded-xl px-4 py-3 font-bold focus:ring-2 focus:ring-purple-500"
+                    />
+                </div>
+                
+                <div className="w-full md:w-auto flex-1">
+                    <label className="block text-xs font-bold uppercase tracking-widest text-stone-500 mb-2">Ends At</label>
+                    <div className="relative">
+                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" size={16} />
+                        <input 
+                            type="date" 
+                            name="endDate" 
+                            defaultValue={vendor.temporaryCommissionEndsAt ? new Date(vendor.temporaryCommissionEndsAt).toISOString().split('T')[0] : ''}
+                            className="w-full bg-stone-50 dark:bg-stone-800 border-none rounded-xl pl-10 pr-4 py-3 font-medium focus:ring-2 focus:ring-purple-500"
+                        />
+                    </div>
+                </div>
+
+                <button type="submit" className="w-full md:w-auto px-6 py-3 bg-stone-900 dark:bg-white text-white dark:text-stone-900 font-bold rounded-xl hover:opacity-90">
+                    Apply Override
+                </button>
+            </form>
+        </section>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           <div className="bg-white dark:bg-stone-900 p-8 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm">

@@ -19,6 +19,14 @@ export const calculateAndRecordCommission = async (order: any) => {
   }
 
   return await prisma.$transaction(async (tx) => {
+    // 1. Fetch Global Settings for default rate
+    const globalSettings = await tx.systemSettings.upsert({
+      where: { id: "global" },
+      update: {},
+      create: { id: "global", defaultCommissionRate: 10.0 },
+    });
+    const defaultRate = globalSettings.defaultCommissionRate;
+
     const results: any[] = [];
 
     for (const [brandSlug, lines] of Object.entries(brandGroups)) {
@@ -31,15 +39,28 @@ export const calculateAndRecordCommission = async (order: any) => {
           data: {
             brandAttributeValue: brandSlug,
             brandName: brandSlug.replace(/-/g, " "),
+            commissionRate: defaultRate, // Use global default for new vendors
           }
         });
+      }
+
+      // 2. Determine Effective Commission Rate
+      const now = new Date();
+      let effectiveRate = vendor.commissionRate;
+      
+      if (
+        vendor.temporaryCommissionRate !== null &&
+        vendor.temporaryCommissionEndsAt &&
+        vendor.temporaryCommissionEndsAt > now
+      ) {
+        effectiveRate = vendor.temporaryCommissionRate;
       }
 
       const brandNetTotal = lines.reduce((acc, line) => {
         return acc + (line.totalPrice?.net?.amount || 0);
       }, 0);
 
-      const commissionAmount = brandNetTotal * (vendor.commissionRate / 100);
+      const commissionAmount = brandNetTotal * (effectiveRate / 100);
 
       const commission = await tx.commission.upsert({
         where: { orderId: `${order.id}-${brandSlug}` },
