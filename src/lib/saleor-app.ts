@@ -1,3 +1,4 @@
+// Saleor App SDK v1.5.0 Compatibility Layer
 import { SaleorApp } from "@saleor/app-sdk/saleor-app";
 import { FileAPL } from "@saleor/app-sdk/APL/file";
 import { VercelKvApl } from "@saleor/app-sdk/APL/vercel-kv";
