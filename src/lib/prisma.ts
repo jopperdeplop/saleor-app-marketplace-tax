@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { Pool } from "@vercel/postgres";
+import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 
 const connectionString = process.env.POSTGRES_PRISMA_URL;
