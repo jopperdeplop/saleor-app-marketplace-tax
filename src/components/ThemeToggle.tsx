@@ -10,7 +10,9 @@ export function ThemeToggle() {
     const { theme, setTheme } = useTheme();
 
     useEffect(() => {
-        setMounted(true);
+        // Defer mounting state to avoid synchronous cascading renders warning in strict lint environments
+        const timer = setTimeout(() => setMounted(true), 0);
+        return () => clearTimeout(timer);
     }, []);
 
     if (!mounted) {

@@ -1,5 +1,5 @@
 import React from "react";
-import { Receipt, BarChart3, ShieldCheck, Zap, ArrowRight, Activity, FileText, Globe } from "lucide-react";
+import { Receipt, BarChart3, ShieldCheck, Zap, ArrowRight, Activity, Globe } from "lucide-react";
 
 export default function Home() {
   return (
