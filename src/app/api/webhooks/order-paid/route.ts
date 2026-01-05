@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { saleorApp } from "@/lib/saleor-app";
 import { calculateAndRecordCommission } from "@/services/commission";
 
+export const dynamic = "force-dynamic";
+
 export const POST = async (request: Request) => {
   const signature = request.headers.get("x-saleor-signature");
   
