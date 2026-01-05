@@ -1,7 +1,15 @@
 import { PrismaClient } from "@prisma/client";
+import { Pool } from "@vercel/postgres";
+import { PrismaPg } from "@prisma/adapter-pg";
+
+const connectionString = process.env.POSTGRES_PRISMA_URL;
 
 const prismaClientSingleton = () => {
+  const pool = new Pool({ connectionString });
+  const adapter = new PrismaPg(pool);
+  
   return new PrismaClient({
+    adapter,
     log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
   });
 };
