@@ -84,7 +84,7 @@ export default function Home() {
                 <div className="space-y-4">
                     <div className="flex justify-between items-center border-b border-border-custom pb-2">
                         <span className="text-sm font-medium">Next.js Core</span>
-                        <span className="text-sm font-bold">15.1.4</span>
+                        <span className="text-sm font-bold">15.4.10</span>
                     </div>
                     <div className="flex justify-between items-center border-b border-border-custom pb-2">
                         <span className="text-sm font-medium">ORM Layer</span>
