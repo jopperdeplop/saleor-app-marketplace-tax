@@ -1,9 +1,11 @@
 'use server';
 
 import { prisma } from "@/lib/prisma";
+import { PrismaAPL } from "@/lib/prisma-apl";
 import { revalidatePath } from "next/cache";
 
 export async function updateGlobalSettings(formData: FormData) {
+
   const rateStr = formData.get("defaultRate");
   if (!rateStr) return;
   const rate = parseFloat(rateStr.toString());
@@ -67,6 +69,97 @@ export async function registerVendor(formData: FormData) {
     }
   });
 
+
   revalidatePath("/");
 }
+
+export async function syncVendors() {
+
+  const apl = new PrismaAPL();
+  const authRecords = await apl.getAll(); 
+
+  if (authRecords.length === 0) {
+    throw new Error("No Saleor API connected.");
+  }
+
+  const { saleorApiUrl, token } = authRecords[0];
+
+  const query = `
+    query FetchBrands($after: String) {
+      pages(first: 100, after: $after) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        edges {
+          node {
+            id
+            title
+            pageType {
+              name
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  let hasNextPage = true;
+  let cursor = null;
+  let allPages: any[] = [];
+
+  while (hasNextPage) {
+    const response: Response = await fetch(saleorApiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify({ 
+        query,
+        variables: { after: cursor }
+      }),
+    });
+
+    const json: any = await response.json();
+    const data: any = json.data?.pages;
+    
+    if (data?.edges) {
+
+      const pageNodes = data.edges.map((e: any) => e.node);
+      allPages = [...allPages, ...pageNodes];
+    }
+
+    hasNextPage = data?.pageInfo?.hasNextPage || false;
+    cursor = data?.pageInfo?.endCursor || null;
+  }
+
+  // Filter for pages with Page Type "Brand"
+  const brandPages = allPages.filter((p: any) => p.pageType?.name === "Brand");
+
+  let count = 0;
+  
+  // Get default rate
+  const globalSettings = await (prisma as any).systemSettings.findUnique({ where: { id: "global" } });
+  const defaultRate = globalSettings?.defaultCommissionRate ?? 10.0;
+
+  for (const page of brandPages) {
+    await prisma.vendorProfile.upsert({
+      where: { brandAttributeValue: page.id },
+      update: {
+        brandName: page.title, 
+      },
+      create: {
+        brandAttributeValue: page.id,
+        brandName: page.title,
+        commissionRate: defaultRate,
+      },
+    });
+    count++;
+  }
+
+  revalidatePath("/");
+  return { success: true, count };
+}
+
 

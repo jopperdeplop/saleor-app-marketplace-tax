@@ -86,4 +86,22 @@ export const OrderDetailsQuery = gql`
       ...OrderDetailsFragment
     }
   }
+  }
 `;
+
+export const FetchBrandsQuery = gql`
+  query FetchBrands {
+    pages(first: 100) {
+      edges {
+        node {
+          id
+          title
+          pageType {
+            name
+          }
+        }
+      }
+    }
+  }
+`;
+
