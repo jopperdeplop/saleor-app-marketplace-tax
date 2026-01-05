@@ -1,6 +1,6 @@
 import React from "react";
 import { prisma } from "@/lib/prisma";
-import { Receipt, TrendingUp, Landmark, Globe, ShieldCheck } from "lucide-react";
+import { Receipt, TrendingUp, Landmark, Globe, ShieldCheck, Download } from "lucide-react";
 
 export async function MarketplaceTaxDashboard() {
   const commissions = await prisma.commission.findMany();
@@ -60,6 +60,25 @@ export async function MarketplaceTaxDashboard() {
 
   return (
     <div className="space-y-6 mb-12">
+      <div className="flex justify-between items-center mb-2">
+          <h3 className="text-[11px] font-bold uppercase tracking-widest text-text-secondary">Platform Fiscal Overview</h3>
+          <div className="flex gap-2">
+              <a 
+                href="/api/export?type=oss" 
+                className="inline-flex items-center gap-2 px-4 py-1.5 bg-purple-100 dark:bg-purple-900/20 text-purple-600 rounded-lg text-xs font-bold hover:bg-purple-200 transition-colors"
+                download
+              >
+                <Download size={14} /> Export OSS CSV
+              </a>
+              <a 
+                href="/api/export?type=commissions" 
+                className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-100 dark:bg-blue-900/20 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-200 transition-colors"
+                download
+              >
+                <Download size={14} /> Export Ledger
+              </a>
+          </div>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat) => (
           <div key={stat.label} className="bg-card border border-border-custom p-6 rounded-3xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
