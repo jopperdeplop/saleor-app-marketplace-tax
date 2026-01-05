@@ -1,5 +1,6 @@
 import React from "react";
 import { Receipt, BarChart3, ShieldCheck, Zap, ArrowRight, Activity, Globe } from "lucide-react";
+import { VendorList } from "@/components/VendorList";
 
 export default function Home() {
   return (
@@ -103,6 +104,9 @@ export default function Home() {
             </div>
           </aside>
         </div>
+        
+        <VendorList />
+
       </main>
 
       <footer className="border-t border-border-custom px-6 py-12 bg-card">
