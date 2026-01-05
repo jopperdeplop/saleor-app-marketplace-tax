@@ -5,9 +5,10 @@ import { Receipt, CreditCard, Clock, CheckCircle, Download } from "lucide-react"
 export default async function VendorDashboard({
   params,
 }: {
-  params: { brandSlug: string };
+  params: Promise<{ brandSlug: string }>;
 }) {
-  const data = await getVendorData(params.brandSlug);
+  const { brandSlug } = await params;
+  const data = await getVendorData(brandSlug);
 
   if (!data) {
     notFound();

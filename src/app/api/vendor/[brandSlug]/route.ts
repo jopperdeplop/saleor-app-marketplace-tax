@@ -3,9 +3,9 @@ import { prisma } from "@/lib/prisma";
 
 export const GET = async (
   request: Request,
-  { params }: { params: { brandSlug: string } }
+  { params }: { params: Promise<{ brandSlug: string }> }
 ) => {
-  const brandSlug = params.brandSlug;
+  const { brandSlug } = await params;
   const authHeader = request.headers.get("Authorization");
 
   // Robustness/Security: Check for authorization
