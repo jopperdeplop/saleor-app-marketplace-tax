@@ -57,26 +57,26 @@ export const calculateAndRecordCommission = async (order: any) => {
         effectiveRate = vendor.temporaryCommissionRate;
       }
 
-      // Calculation logic: Currently uses NET amount (excluding taxes)
-      const brandNetTotal = lines.reduce((acc, line) => {
-        return acc + (line.totalPrice?.net?.amount || 0);
+      // Calculation logic: Uses GROSS amount (including taxes) to align with Amazon/Bol standards
+      const brandGrossTotal = lines.reduce((acc, line) => {
+        return acc + (line.totalPrice?.gross?.amount || 0);
       }, 0);
 
-      const commissionAmount = brandNetTotal * (effectiveRate / 100);
+      const commissionAmount = brandGrossTotal * (effectiveRate / 100);
 
       const commission = await tx.commission.upsert({
         where: { orderId: `${order.id}-${brandSlug}` },
         update: {
           amount: commissionAmount,
           vendorProfileId: vendor.id,
-          orderGross: brandNetTotal,
+          orderGross: brandGrossTotal,
           rate: effectiveRate,
         },
         create: {
           orderId: `${order.id}-${brandSlug}`,
           vendorProfileId: vendor.id,
           amount: commissionAmount,
-          orderGross: brandNetTotal,
+          orderGross: brandGrossTotal,
           rate: effectiveRate,
           currency: order.total?.gross?.currency || "EUR",
         }
