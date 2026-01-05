@@ -41,6 +41,20 @@ export async function updateVendorOverride(formData: FormData) {
   revalidatePath(`/dashboard/vendor/${brandSlug}`);
 }
 
+export async function removeVendorOverride(formData: FormData) {
+  const brandSlug = formData.get("brandSlug") as string;
+
+  await prisma.vendorProfile.update({
+    where: { brandAttributeValue: brandSlug },
+    data: {
+      temporaryCommissionRate: null,
+      temporaryCommissionEndsAt: null,
+    } as any,
+  });
+
+  revalidatePath(`/dashboard/vendor/${brandSlug}`);
+}
+
 export async function registerVendor(formData: FormData) {
   const brandSlug = formData.get("brandSlug");
   const brandName = formData.get("brandName");

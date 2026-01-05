@@ -9,6 +9,8 @@ export const GET = async () => {
         brandName: true,
         brandAttributeValue: true,
         commissionRate: true,
+        temporaryCommissionRate: true,
+        temporaryCommissionEndsAt: true,
       },
     });
 

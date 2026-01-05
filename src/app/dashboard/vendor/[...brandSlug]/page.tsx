@@ -1,7 +1,7 @@
 import { getVendorData } from "@/services/vendor-dashboard";
 import { notFound } from "next/navigation";
 import { CreditCard, Clock, CheckCircle, Download, Zap, Calendar, ArrowLeft } from "lucide-react";
-import { updateVendorOverride } from "@/app/actions";
+import { updateVendorOverride, removeVendorOverride } from "@/app/actions";
 import Link from "next/link";
 
 export default async function VendorDashboard({
@@ -76,38 +76,49 @@ export default async function VendorDashboard({
                 </div>
             </div>
             
-            <form action={updateVendorOverride} className="flex flex-col md:flex-row gap-4 items-end">
-                <input type="hidden" name="brandSlug" value={brandSlug} />
-                
-                <div className="w-full md:w-auto flex-1">
-                    <label className="block text-xs font-bold uppercase tracking-widest text-stone-500 mb-2">Temporary Rate (%)</label>
-                    <input 
-                        type="number" 
-                        step="0.01" 
-                        name="tempRate" 
-                        defaultValue={vendor.temporaryCommissionRate ?? ''}
-                        placeholder="e.g. 5.0"
-                        className="w-full bg-stone-50 dark:bg-stone-800 border-none rounded-xl px-4 py-3 font-bold focus:ring-2 focus:ring-purple-500"
-                    />
-                </div>
-                
-                <div className="w-full md:w-auto flex-1">
-                    <label className="block text-xs font-bold uppercase tracking-widest text-stone-500 mb-2">Ends At</label>
-                    <div className="relative">
-                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" size={16} />
+            <div className="flex flex-col md:flex-row gap-4 items-end">
+                <form action={updateVendorOverride} className="flex-1 flex flex-col md:flex-row gap-4 items-end w-full">
+                    <input type="hidden" name="brandSlug" value={brandSlug} />
+                    
+                    <div className="w-full md:w-auto flex-1">
+                        <label className="block text-xs font-bold uppercase tracking-widest text-stone-500 mb-2">Temporary Rate (%)</label>
                         <input 
-                            type="date" 
-                            name="endDate" 
-                            defaultValue={vendor.temporaryCommissionEndsAt ? new Date(vendor.temporaryCommissionEndsAt).toISOString().split('T')[0] : ''}
-                            className="w-full bg-stone-50 dark:bg-stone-800 border-none rounded-xl pl-10 pr-4 py-3 font-medium focus:ring-2 focus:ring-purple-500"
+                            type="number" 
+                            step="0.01" 
+                            name="tempRate" 
+                            defaultValue={vendor.temporaryCommissionRate ?? ''}
+                            placeholder="e.g. 5.0"
+                            className="w-full bg-stone-50 dark:bg-stone-800 border-none rounded-xl px-4 py-3 font-bold focus:ring-2 focus:ring-purple-500"
                         />
                     </div>
-                </div>
+                    
+                    <div className="w-full md:w-auto flex-1">
+                        <label className="block text-xs font-bold uppercase tracking-widest text-stone-500 mb-2">Ends At</label>
+                        <div className="relative">
+                            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" size={16} />
+                            <input 
+                                type="date" 
+                                name="endDate" 
+                                defaultValue={vendor.temporaryCommissionEndsAt ? new Date(vendor.temporaryCommissionEndsAt).toISOString().split('T')[0] : ''}
+                                className="w-full bg-stone-50 dark:bg-stone-800 border-none rounded-xl pl-10 pr-4 py-3 font-medium focus:ring-2 focus:ring-purple-500"
+                            />
+                        </div>
+                    </div>
 
-                <button type="submit" className="w-full md:w-auto px-6 py-3 bg-stone-900 dark:bg-white text-white dark:text-stone-900 font-bold rounded-xl hover:opacity-90 shadow-md transition-all active:scale-95">
-                    Apply Override
-                </button>
-            </form>
+                    <button type="submit" className="w-full md:w-auto px-6 py-3 bg-stone-900 dark:bg-white text-white dark:text-stone-900 font-bold rounded-xl hover:opacity-90 shadow-md transition-all active:scale-95 whitespace-nowrap">
+                        Apply Override
+                    </button>
+                </form>
+
+                {vendor.temporaryCommissionEndsAt && (
+                    <form action={removeVendorOverride} className="w-full md:w-auto">
+                         <input type="hidden" name="brandSlug" value={brandSlug} />
+                         <button type="submit" className="w-full md:w-auto px-6 py-3 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 font-bold rounded-xl hover:bg-red-100 dark:hover:bg-red-900/20 transition-all active:scale-95 whitespace-nowrap">
+                            Remove Override
+                        </button>
+                    </form>
+                )}
+            </div>
         </section>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">

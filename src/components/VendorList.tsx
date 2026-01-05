@@ -9,6 +9,8 @@ interface Vendor {
   brandName: string;
   brandAttributeValue: string;
   commissionRate: number;
+  temporaryCommissionRate?: number | null;
+  temporaryCommissionEndsAt?: string | null;
 }
 
 export function VendorList() {
@@ -144,31 +146,53 @@ export function VendorList() {
                     </td>
                 </tr>
             ) : (
-                filteredVendors.map((vendor) => (
-                    <tr key={vendor.brandAttributeValue} className="group hover:bg-stone-50 dark:hover:bg-stone-900 transition-colors">
-                    <td className="px-8 py-5">
-                        <Link href={`/dashboard/vendor/${encodeURIComponent(vendor.brandAttributeValue)}`} className="font-bold text-lg hover:text-accent transition-colors block">
-                            {vendor.brandName}
-                        </Link>
-                    </td>
-                    <td className="px-8 py-5 font-mono text-sm text-text-secondary">
-                        {vendor.brandAttributeValue}
-                    </td>
-                    <td className="px-8 py-5">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                           {vendor.commissionRate}%
-                        </span>
-                    </td>
-                    <td className="px-8 py-5 text-right">
-                         <Link 
-                            href={`/dashboard/vendor/${encodeURIComponent(vendor.brandAttributeValue)}`}
-                            className="inline-flex items-center gap-1 text-sm font-bold text-text-secondary hover:text-accent transition-colors"
-                        >
-                            Manage <ArrowRight size={16} />
-                        </Link>
-                    </td>
-                    </tr>
-                ))
+                filteredVendors.map((vendor) => {
+                    const now = new Date();
+                    const hasActiveOverride = vendor.temporaryCommissionEndsAt && new Date(vendor.temporaryCommissionEndsAt) > now;
+                    
+                    return (
+                        <tr key={vendor.brandAttributeValue} className="group hover:bg-stone-50 dark:hover:bg-stone-900 transition-colors">
+                        <td className="px-8 py-5">
+                            <Link href={`/dashboard/vendor/${encodeURIComponent(vendor.brandAttributeValue)}`} className="font-bold text-lg hover:text-accent transition-colors block">
+                                {vendor.brandName}
+                            </Link>
+                        </td>
+                        <td className="px-8 py-5 font-mono text-sm text-text-secondary">
+                            {vendor.brandAttributeValue}
+                        </td>
+                        <td className="px-8 py-5">
+                            <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-2">
+                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${hasActiveOverride ? 'bg-stone-100 dark:bg-stone-800 text-stone-400 line-through' : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'}`}>
+                                       {vendor.commissionRate}%
+                                    </span>
+                                    {hasActiveOverride && (
+                                        <ArrowRight size={12} className="text-stone-400" />
+                                    )}
+                                    {hasActiveOverride && (
+                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-accent/10 border border-accent/20 text-accent">
+                                            {vendor.temporaryCommissionRate}%
+                                        </span>
+                                    )}
+                                </div>
+                                {hasActiveOverride && (
+                                    <span className="text-[10px] font-medium text-stone-400 uppercase tracking-tighter">
+                                        Ends {new Date(vendor.temporaryCommissionEndsAt!).toLocaleDateString()}
+                                    </span>
+                                )}
+                            </div>
+                        </td>
+                        <td className="px-8 py-5 text-right">
+                             <Link 
+                                href={`/dashboard/vendor/${encodeURIComponent(vendor.brandAttributeValue)}`}
+                                className="inline-flex items-center gap-1 text-sm font-bold text-text-secondary hover:text-accent transition-colors"
+                            >
+                                Manage <ArrowRight size={16} />
+                            </Link>
+                        </td>
+                        </tr>
+                    );
+                })
             )}
             </tbody>
         </table>
