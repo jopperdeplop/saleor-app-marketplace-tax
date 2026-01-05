@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Marketplace Tax Engine - Project Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #050505;
+        color: #e5e7eb;
+        overflow-x: hidden;
+      }
+      .heading-font {
+        font-family: "Outfit", sans-serif;
+      }
+      .glass {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px border rgba(255, 255, 255, 0.1);
+      }
+      .status-badge {
+        padding: 2px 8px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+      .status-done {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+      }
+      .status-progress {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+      }
+      .status-pending {
+        background: rgba(156, 163, 175, 0.1);
+        color: #9ca3af;
+        border: 1px solid rgba(156, 163, 175, 0.2);
+      }
+      .glow {
+        box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+      }
+    </style>
+  </head>
+  <body class="p-4 md:p-12">
+    <div class="max-w-6xl mx-auto">
+      <!-- Header -->
+      <header
+        class="mb-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-6"
+      >
+        <div>
+          <h1
+            class="heading-font text-4xl md:text-5xl font-extrabold tracking-tight mb-2 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400"
+          >
+            Marketplace Tax Engine
+          </h1>
+          <p class="text-gray-400">Project Status & Implementation Roadmap</p>
+        </div>
+        <div class="glass p-4 rounded-2xl flex items-center gap-4 glow">
+          <div
+            class="h-12 w-12 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor font-bold"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              />
+            </svg>
+          </div>
+          <div>
+            <div
+              class="text-xs text-gray-500 uppercase font-bold tracking-wider"
+            >
+              Current Sprint
+            </div>
+            <div class="text-lg font-semibold text-white">
+              Phase 3: Deployment Stabilization
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column: Tasks -->
+        <div class="lg:col-span-2 space-y-8">
+          <section class="glass rounded-3xl p-8 border border-white/5">
+            <h2
+              class="heading-font text-2xl font-bold mb-6 flex items-center gap-2"
+            >
+              <span
+                class="h-2 w-2 rounded-full bg-indigo-500 animate-pulse"
+              ></span>
+              Implementation Checklist
+            </h2>
+
+            <div class="space-y-6">
+              <!-- Phase 1 -->
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="font-bold text-gray-300">
+                    Phase 1: Manual Configuration
+                  </h3>
+                  <span class="status-badge status-done">Completed</span>
+                </div>
+                <ul class="space-y-2 text-sm text-gray-400 ml-4">
+                  <li class="flex items-center gap-2">
+                    <svg
+                      class="h-4 w-4 text-emerald-500"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      />
+                    </svg>
+                    Saleor Tax Rates (20% Eurozone)
+                  </li>
+                  <li class="flex items-center gap-2">
+                    <svg
+                      class="h-4 w-4 text-emerald-500"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      />
+                    </svg>
+                    Brand Attribute Identification (QXR0cmlidXRlOjQ0)
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Phase 2 -->
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="font-bold text-gray-300">
+                    Phase 2: Repository & Scaffolding
+                  </h3>
+                  <span class="status-badge status-done">Completed</span>
+                </div>
+                <ul class="space-y-2 text-sm text-gray-400 ml-4">
+                  <li class="flex items-center gap-2">
+                    <svg
+                      class="h-4 w-4 text-emerald-500"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      />
+                    </svg>
+                    Prisma Schema (Vendor, Commission, Invoices)
+                  </li>
+                  <li class="flex items-center gap-2">
+                    <svg
+                      class="h-4 w-4 text-emerald-500"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      />
+                    </svg>
+                    Core Services & Logic Implementation
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Phase 3 -->
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="font-bold text-gray-300">
+                    Phase 3: Deployment Stabilization
+                  </h3>
+                  <span class="status-badge status-progress">In Progress</span>
+                </div>
+                <ul class="space-y-2 text-sm text-gray-400 ml-4">
+                  <li class="flex items-center gap-2 text-white">
+                    <div
+                      class="h-4 w-4 border-2 border-indigo-500 rounded flex items-center justify-center"
+                    >
+                      <div class="h-2 w-2 bg-indigo-500 animate-pulse"></div>
+                    </div>
+                    Next.js 15.1.4 Downgrade & Build Fixes
+                  </li>
+                  <li class="flex items-center gap-2">
+                    <div class="h-4 w-4 border-2 border-gray-600 rounded"></div>
+                    SDK v1.5.0 Module Resolution Finalization
+                  </li>
+                  <li class="flex items-center gap-2 line-through opacity-50">
+                    <svg
+                      class="h-4 w-4 text-emerald-500"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      />
+                    </svg>
+                    React-PDF Strict Layout Fixes
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Phase 4 -->
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="font-bold text-gray-300">
+                    Phase 4: Output & Integration
+                  </h3>
+                  <span class="status-badge status-pending">Pending</span>
+                </div>
+                <ul class="space-y-2 text-sm text-gray-400 ml-4">
+                  <li class="flex items-center gap-2">
+                    <div class="h-4 w-4 border-2 border-gray-600 rounded"></div>
+                    Vercel Postgres & Blob Integration
+                  </li>
+                  <li class="flex items-center gap-2">
+                    <div class="h-4 w-4 border-2 border-gray-600 rounded"></div>
+                    Saleor Manifest Registration (Live URL)
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Right Column: Implementation Detail -->
+        <div class="space-y-8">
+          <section class="glass rounded-3xl p-6 border border-white/5">
+            <h2 class="heading-font text-xl font-bold mb-4">Architecture</h2>
+            <div class="space-y-4">
+              <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                <div class="text-indigo-400 font-bold text-xs uppercase mb-1">
+                  Logic Engine
+                </div>
+                <div class="text-sm">Saleor App SDK 1.5.0</div>
+              </div>
+              <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                <div class="text-emerald-400 font-bold text-xs uppercase mb-1">
+                  Persistence
+                </div>
+                <div class="text-sm">Prisma 7 + Vercel Postgres</div>
+              </div>
+              <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                <div class="text-pink-400 font-bold text-xs uppercase mb-1">
+                  Storage
+                </div>
+                <div class="text-sm">Vercel Blob (PDF Artifacts)</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="glass rounded-3xl p-6 border border-white/5">
+            <h2 class="heading-font text-xl font-bold mb-4">Core Workflow</h2>
+            <div
+              class="relative pl-6 space-y-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-indigo-500/30"
+            >
+              <div class="relative">
+                <div
+                  class="absolute left-[-21px] top-1 h-3 w-3 rounded-full bg-indigo-500 ring-4 ring-indigo-500/20"
+                ></div>
+                <div class="text-sm font-semibold">Order Paid Webhook</div>
+                <div class="text-xs text-gray-400">
+                  Triggers grouping by Brand ID
+                </div>
+              </div>
+              <div class="relative">
+                <div
+                  class="absolute left-[-21px] top-1 h-3 w-3 rounded-full bg-indigo-500 ring-4 ring-indigo-500/20"
+                ></div>
+                <div class="text-sm font-semibold">Commission Entry</div>
+                <div class="text-xs text-gray-400">
+                  10% Platform Fee Calculated
+                </div>
+              </div>
+              <div class="relative">
+                <div
+                  class="absolute left-[-21px] top-1 h-3 w-3 rounded-full bg-indigo-500 ring-4 ring-indigo-500/20"
+                ></div>
+                <div class="text-sm font-semibold">Dual PDF Generation</div>
+                <div class="text-xs text-gray-400">
+                  Customer Receipt & B2B Invoice
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <footer class="mt-12 text-center text-gray-600 text-xs italic">
+        Dashboard updated in environment: Saleor Workspace | Next 15 Stable Core
+      </footer>
+    </div>
+  </body>
+</html>
