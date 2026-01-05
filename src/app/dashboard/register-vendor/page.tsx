@@ -43,10 +43,10 @@ export default function RegisterVendorPage() {
 
             <div>
               <label htmlFor="brandSlug" className="block text-sm font-bold uppercase tracking-widest text-stone-500 mb-2">
-                Brand Slug (Saleor Attribute)
+                Brand Page ID (Saleor Attribute)
               </label>
               <p className="text-xs text-stone-400 mb-2">
-                Must exactly match the slug of the "Brand" attribute in Saleor.
+                Your system links Brands to Pages. Please enter the Page ID (e.g. from the URL or API).
               </p>
               <input
                 type="text"
@@ -54,8 +54,9 @@ export default function RegisterVendorPage() {
                 id="brandSlug"
                 required
                 className="w-full bg-stone-50 dark:bg-stone-800 border-none rounded-xl px-4 py-3 font-mono text-sm focus:ring-2 focus:ring-accent"
-                placeholder="e.g. acme-corp"
+                placeholder="e.g. UGFnZTo1"
               />
+
             </div>
 
             <div>
