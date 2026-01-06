@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { ArrowLeft, Users, CheckCircle, XCircle, Clock } from "lucide-react";
 import Link from "next/link";
+import { ApplicationList } from "./ApplicationList";
 
 interface Application {
   id: number;
@@ -14,7 +15,7 @@ interface Application {
   createdAt: string;
   processedAt: string | null;
 }
-
+// ... (rest of the functions same as before)
 async function getApplications(): Promise<Application[]> {
   const portalUrl = process.env.PORTAL_API_URL;
   const secret = process.env.PORTAL_API_SECRET;
@@ -29,7 +30,7 @@ async function getApplications(): Promise<Application[]> {
       headers: {
         Authorization: `Bearer ${secret}`,
       },
-      next: { revalidate: 30 },
+      next: { revalidate: 0 }, // Disable cache for admin view to see changes immediately
     });
 
     if (!response.ok) {
@@ -51,6 +52,7 @@ export default async function ApplicationsPage() {
   }
 
   const applications = await getApplications();
+// ... (headers and stats same as before)
   const pending = applications.filter((a) => a.status === "pending");
   const approved = applications.filter((a) => a.status === "approved");
   const rejected = applications.filter((a) => a.status === "rejected");
@@ -110,43 +112,12 @@ export default async function ApplicationsPage() {
               <p>No applications yet</p>
             </div>
           ) : (
-            <div className="divide-y divide-stone-200 dark:divide-stone-800">
-              {applications.map((app) => (
-                <div key={app.id} className="p-6 hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-bold text-stone-900 dark:text-white">{app.companyName}</h3>
-                      <p className="text-sm text-stone-500">{app.email}</p>
-                      <p className="text-xs text-stone-400 mt-1">VAT: {app.vatNumber} • {app.country}</p>
-                    </div>
-                    <div className="text-right">
-                      <span
-                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${
-                          app.status === "pending"
-                            ? "bg-amber-500/10 text-amber-500"
-                            : app.status === "approved"
-                            ? "bg-green-500/10 text-green-500"
-                            : "bg-red-500/10 text-red-500"
-                        }`}
-                      >
-                        {app.status === "pending" && <Clock size={12} />}
-                        {app.status === "approved" && <CheckCircle size={12} />}
-                        {app.status === "rejected" && <XCircle size={12} />}
-                        {app.status.toUpperCase()}
-                      </span>
-                      <p className="text-xs text-stone-400 mt-2">
-                        {new Date(app.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <ApplicationList applications={applications} />
           )}
         </div>
 
         <p className="text-center text-stone-400 text-sm mt-8">
-          Applications are managed from the partner portal. This view is read-only.
+          Decisions made here will automatically create vendor accounts in the partner portal.
         </p>
       </div>
     </div>

@@ -1,0 +1,45 @@
+"use server";
+
+import { auth } from "@/auth";
+import { revalidatePath } from "next/cache";
+
+async function callPortalApi(path: string, method: string, body: any) {
+  const portalUrl = process.env.PORTAL_API_URL;
+  const secret = process.env.PORTAL_API_SECRET;
+
+  if (!portalUrl || !secret) {
+    throw new Error("Missing PORTAL_API_URL or PORTAL_API_SECRET");
+  }
+
+  const response = await fetch(`${portalUrl}${path}`, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${secret}`,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Portal API error: ${response.status} ${text}`);
+  }
+
+  return response.json();
+}
+
+export async function processApplication(id: number, action: 'approve' | 'reject') {
+  const session = await auth();
+  if (!session) throw new Error("Unauthorized");
+
+  await callPortalApi("/api/admin/applications", "POST", { id, action });
+  revalidatePath("/dashboard/applications");
+}
+
+export async function updateFeatureStatus(id: number, status: string) {
+  const session = await auth();
+  if (!session) throw new Error("Unauthorized");
+
+  await callPortalApi("/api/admin/feature-requests", "PATCH", { id, status });
+  revalidatePath("/dashboard/feature-requests");
+}
