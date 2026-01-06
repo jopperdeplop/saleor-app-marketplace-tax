@@ -5,6 +5,9 @@ import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 
+// Type assertion to access adminUser
+const db = prisma as any;
+
 export async function changePassword(formData: FormData) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -27,7 +30,7 @@ export async function changePassword(formData: FormData) {
     return { error: "Password must be at least 8 characters" };
   }
 
-  const user = await (prisma.adminUser as any).findUnique({
+  const user = await db.adminUser.findUnique({
     where: { id: session.user.id },
   });
 
@@ -42,7 +45,7 @@ export async function changePassword(formData: FormData) {
 
   const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-  await (prisma.adminUser as any).update({
+  await db.adminUser.update({
     where: { id: session.user.id },
     data: { password: hashedPassword },
   });
@@ -64,7 +67,7 @@ export async function updateProfile(formData: FormData) {
     return { error: "Name and email are required" };
   }
 
-  await (prisma.adminUser as any).update({
+  await db.adminUser.update({
     where: { id: session.user.id },
     data: { name, email },
   });

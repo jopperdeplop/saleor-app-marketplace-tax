@@ -6,6 +6,9 @@ import { auth } from "@/auth";
 import { PasswordChangeForm } from "./PasswordChangeForm";
 import { signOut } from "@/auth";
 
+// Type assertion to access adminUser
+const db = prisma as any;
+
 export default async function SettingsPage() {
   const session = await auth();
   const settings = await prisma.systemSettings.findUnique({
@@ -13,7 +16,7 @@ export default async function SettingsPage() {
   });
 
   const adminUser = session?.user?.id
-    ? await (prisma.adminUser as any).findUnique({
+    ? await db.adminUser.findUnique({
         where: { id: session.user.id },
       })
     : null;

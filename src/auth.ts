@@ -4,6 +4,9 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
+// Type assertion to access adminUser
+const db = prisma as any;
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Credentials({
@@ -20,7 +23,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const { email, password } = parsed.data;
 
-        const user = await (prisma.adminUser as any).findUnique({
+        const user = await db.adminUser.findUnique({
           where: { email },
         });
 
