@@ -28,17 +28,20 @@ export default function LoginPage() {
     });
 
     if (result?.error) {
-      if (result.error === "OTP_REQUIRED") {
-        setOtpRequired(true);
-      } else if (result.error === "INVALID_OTP") {
-        setError("Invalid verification code");
-      } else {
-        setError("Invalid email or password");
-      }
-      setLoading(false);
+       console.log("Login error:", result.error, result.code);
+       if (result.code === "OTP_REQUIRED" || result.error?.includes("OTP_REQUIRED") || result.error?.includes("Configuration")) {
+          // NextAuth v5 sometimes returns "Configuration" for custom errors if not handled perfectly, 
+          // but we are using CredentialsSignin so code should be there.
+          setOtpRequired(true);
+       } else if (result.code === "INVALID_OTP" || result.error?.includes("INVALID_OTP")) {
+          setError("Invalid verification code");
+       } else {
+          setError("Invalid email or password");
+       }
+       setLoading(false);
     } else {
-      router.push("/");
-      router.refresh();
+       router.push("/");
+       router.refresh();
     }
   };
 

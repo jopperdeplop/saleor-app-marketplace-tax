@@ -1,4 +1,4 @@
-import NextAuth, { type DefaultSession } from "next-auth";
+import NextAuth, { type DefaultSession, CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
@@ -51,7 +51,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         // 3. Handle 2FA
         if (user.twoFactorEnabled) {
           if (!code) {
-            throw new Error("OTP_REQUIRED");
+             class InvalidOTP extends CredentialsSignin {
+                code = "OTP_REQUIRED"
+             }
+             throw new InvalidOTP();
           }
 
           const verified = speakeasy.totp.verify({
@@ -61,7 +64,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           });
 
           if (!verified) {
-            throw new Error("INVALID_OTP");
+             class InvalidOTP extends CredentialsSignin {
+                code = "INVALID_OTP"
+             }
+             throw new InvalidOTP();
           }
         }
 

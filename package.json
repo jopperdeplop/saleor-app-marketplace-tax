@@ -63,6 +63,6 @@
         }
     },
     "prisma": {
-        "seed": "tsx scripts/seed-admin.ts"
+        "seed": "npx tsx scripts/seed-admin.ts"
     }
 }
