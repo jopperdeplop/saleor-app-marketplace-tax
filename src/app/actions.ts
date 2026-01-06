@@ -116,21 +116,33 @@ export async function syncVendors() {
 
   const BRAND_ATTRIBUTE_ID = "QXR0cmlidXRlOjQ0";
 
-  // Omni-Discovery Query: Total fetch of Pages, Attributes, and Product Types
+  // Omni-Discovery Strategy: Target "Brand" models specifically
   const discoveryQuery = `
     query DiscoverVendors {
-      # 1. Total Page Scan
+      # Vector 1: Fetch Page Types to find the "Brand" model definition
+      pageTypes(first: 100) {
+        edges {
+          node {
+            id
+            name
+          }
+        }
+      }
+      # Vector 2: Fetch all Pages (limit 100 for discovery)
       pages(first: 100) {
         edges {
           node {
             id
             title
             slug
-            pageType { name }
+            pageType {
+              id
+              name
+            }
           }
         }
       }
-      # 2. Attribute Search
+      # Vector 3: Global Attribute Discovery
       attributes(filter: {search: "Brand"}, first: 20) {
         edges {
           node {
@@ -146,21 +158,13 @@ export async function syncVendors() {
           }
         }
       }
-      # 3. Product Type Search
-      productTypes(filter: {search: "Brand"}, first: 20) {
-        edges {
-          node {
-            id name
-          }
-        }
-      }
     }
   `;
 
   let foundVendors: { id: string, name: string }[] = [];
 
   try {
-    console.log(`[SYNC] Initiating deep discovery for ${saleorApiUrl}`);
+    console.log(`[SYNC] Executing omni-discovery on ${saleorApiUrl}`);
     
     const response = await fetch(saleorApiUrl, {
       method: "POST",
@@ -169,72 +173,77 @@ export async function syncVendors() {
     });
     
     const json: any = await response.json();
-    if (json.errors) console.error("[SYNC] Saleor Errors:", json.errors);
+    if (json.errors) {
+      console.error("[SYNC] Saleor GraphQL Protocol Errors:", JSON.stringify(json.errors, null, 2));
+    }
 
     const data = json.data;
 
-    // Advanced Page Discovery: Match anything that looks like a Brand/Vendor/Store
+    // STEP 1: Identify "Brand" Page Types
+    const brandTypeIds = (data?.pageTypes?.edges || [])
+      .filter((e: any) => e.node.name.toLowerCase() === "brand")
+      .map((e: any) => e.node.id);
+    
+    console.log(`[SYNC] Identified ${brandTypeIds.length} PageTypes named "Brand"`);
+
+    // STEP 2: Process Pages
     if (data?.pages?.edges) {
       data.pages.edges.forEach((e: any) => {
-        const title = (e.node.title || "").toLowerCase();
-        const slug = (e.node.slug || "").toLowerCase();
-        const typeName = (e.node.pageType?.name || "").toLowerCase();
-        
-        const isMatch = typeName.includes("brand") || 
-                        typeName.includes("vendor") || 
-                        typeName.includes("store") ||
-                        title.includes("brand") ||
-                        title.includes("vendor") ||
-                        title.includes("saleordevelopmentstore") ||
-                        slug.includes("saleordevelopmentstore");
+        const page = e.node;
+        const typeName = (page.pageType?.name || "").toLowerCase();
+        const typeId = page.pageType?.id;
+        const title = (page.title || "").toLowerCase();
+        const slug = (page.slug || "").toLowerCase();
 
-        if (isMatch) {
-          foundVendors.push({ id: e.node.slug, name: e.node.title });
-          console.log(`[SYNC] Found Page-Brand: "${e.node.title}" [ID: ${e.node.slug}]`);
+        // High-Confidence Match: Official "Brand" Page Type
+        const isOfficialBrand = brandTypeIds.includes(typeId) || typeName === "brand";
+        
+        // Logical Match: Name contains "Brand" or matches known store
+        const isNamingMatch = title.includes("brand") || 
+                             slug.includes("saleordevelopmentstore") ||
+                             title.includes("saleordevelopmentstore");
+
+        if (isOfficialBrand || isNamingMatch) {
+          foundVendors.push({ id: page.slug, name: page.title });
+          console.log(`[SYNC] Found Match: "${page.title}" [Type: ${page.pageType?.name}, ID: ${page.slug}]`);
         }
       });
     }
 
-    // Attribute choices
+    // STEP 3: Process Attributes (Fallback)
     if (data?.attributes?.edges) {
       data.attributes.edges.forEach((edge: any) => {
         const choices = edge.node.choices?.edges || [];
         choices.forEach((c: any) => {
           foundVendors.push({ id: c.node.slug, name: c.node.name });
-          console.log(`[SYNC] Found Attribute-Brand: "${c.node.name}" [ID: ${c.node.slug}]`);
+          console.log(`[SYNC] Found Attribute-Brand: "${c.node.name}" [Slug: ${c.node.slug}]`);
         });
       });
     }
 
-    // Product Types
-    if (data?.productTypes?.edges) {
-      data.productTypes.edges.forEach((edge: any) => {
-        foundVendors.push({ id: edge.node.id, name: edge.node.name });
-        console.log(`[SYNC] Found ProductType-Brand: "${edge.node.name}"`);
+    // STEP 4: Fallback for hardcoded attribute (Backwards Compatibility)
+    if (foundVendors.length === 0) {
+      console.log("[SYNC] No vendors found via primary discovery. Attempting legacy attribute fallback...");
+      const priorityResponse = await fetch(saleorApiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ 
+          query: `query { attribute(id: "${BRAND_ATTRIBUTE_ID}") { choices(first: 100) { edges { node { id name slug } } } } }`
+        }),
+      });
+      const priorityJson: any = await priorityResponse.json();
+      (priorityJson.data?.attribute?.choices?.edges || []).forEach((c: any) => {
+        foundVendors.push({ id: c.node.slug, name: c.node.name });
       });
     }
 
-    // Fallback/Priority Attribute
-    const priorityResponse = await fetch(saleorApiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-      body: JSON.stringify({ 
-        query: `query { attribute(id: "${BRAND_ATTRIBUTE_ID}") { choices(first: 100) { edges { node { id name slug } } } } }`
-      }),
-    });
-    const priorityJson: any = await priorityResponse.json();
-    (priorityJson.data?.attribute?.choices?.edges || []).forEach((c: any) => {
-      foundVendors.push({ id: c.node.slug, name: c.node.name });
-      console.log(`[SYNC] Found Priority-Brand: "${c.node.name}"`);
-    });
-
   } catch (err) {
-    console.error("[SYNC] Fatal Error:", err);
+    console.error("[SYNC] Fatal Connection Error:", err);
   }
 
-  // Deduplicate and Persist
+  // Deduplicate by slug
   const uniqueVendors = Array.from(new Map(foundVendors.map(v => [v.id, v])).values());
-  console.log(`[SYNC] Discovery finished. Syncing ${uniqueVendors.length} vendors to database.`);
+  console.log(`[SYNC] Complete. Persisting ${uniqueVendors.length} unique vendors.`);
 
   const globalSettings = await (prisma as any).systemSettings.findUnique({ where: { id: "global" } });
   const defaultRate = globalSettings?.defaultCommissionRate ?? 10.0;
@@ -255,5 +264,6 @@ export async function syncVendors() {
   revalidatePath("/");
   return { success: true, count: uniqueVendors.length };
 }
+
 
 
