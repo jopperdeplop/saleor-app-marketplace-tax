@@ -121,3 +121,13 @@ model SaleorApp {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
+
+// Admin Authentication
+model AdminUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String   // bcrypt hashed
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
