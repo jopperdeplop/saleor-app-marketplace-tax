@@ -11,14 +11,22 @@ async function callPortalApi(path: string, method: string, body: any) {
     throw new Error("Missing PORTAL_API_URL or PORTAL_API_SECRET");
   }
 
-  const response = await fetch(`${portalUrl}${path}`, {
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${secret}`,
+  };
+
+  const fetchOptions: RequestInit = {
     method,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${secret}`,
-    },
-    body: method !== "GET" && body ? JSON.stringify(body) : undefined,
-  });
+    headers,
+  };
+
+  // Only add body for non-GET methods
+  if (method !== "GET" && method !== "HEAD" && body !== null) {
+    fetchOptions.body = JSON.stringify(body);
+  }
+
+  const response = await fetch(`${portalUrl}${path}`, fetchOptions);
 
   if (!response.ok) {
     const text = await response.text();
