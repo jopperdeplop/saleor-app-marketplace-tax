@@ -10,6 +10,9 @@ export default defineConfig({
   datasource: {
     url: process.env.POSTGRES_PRISMA_URL,
   },
+  migrations: {
+    seed: 'npx tsx ./scripts/seed-admin.ts',
+  },
 });
 
 

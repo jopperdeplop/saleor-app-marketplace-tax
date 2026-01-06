@@ -61,5 +61,8 @@
             "react-dom": "19.2.1",
             "eslint-config-next": "15.4.10"
         }
+    },
+    "prisma": {
+        "seed": "tsx scripts/seed-admin.ts"
     }
 }
