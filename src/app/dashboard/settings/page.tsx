@@ -1,9 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import { updateGlobalSettings } from "@/app/actions";
-import { Settings, Save, ArrowLeft, User, Lock } from "lucide-react";
+import { Settings, Save, ArrowLeft, User, Lock, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { PasswordChangeForm } from "./PasswordChangeForm";
+import { TwoFactorSetup } from "./TwoFactorSetup";
 import { signOut } from "@/auth";
 
 // Type assertion to access adminUser
@@ -39,7 +40,7 @@ export default async function SettingsPage() {
             <h1 className="text-3xl font-bold font-serif text-stone-900 dark:text-white">Settings</h1>
           </div>
           <p className="text-stone-500 text-lg">
-            Configure system-wide parameters and account settings.
+            Configure system-wide parameters and account security.
           </p>
         </header>
 
@@ -47,7 +48,7 @@ export default async function SettingsPage() {
         <section className="bg-white dark:bg-stone-900 p-8 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm mb-8">
           <div className="flex items-center gap-3 mb-6 text-accent">
             <Settings size={20} />
-            <h2 className="text-lg font-bold">Global Settings</h2>
+            <h2 className="text-lg font-bold">Global System</h2>
           </div>
           <form action={updateGlobalSettings}>
             <div className="mb-6">
@@ -77,16 +78,25 @@ export default async function SettingsPage() {
               type="submit"
               className="w-full bg-accent text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
             >
-              <Save size={20} /> Save Global Configuration
+              <Save size={20} /> Save Changes
             </button>
           </form>
         </section>
 
-        {/* Account Settings */}
+        {/* Security & 2FA */}
+        <section className="bg-white dark:bg-stone-900 p-8 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm mb-8">
+          <div className="flex items-center gap-3 mb-6 text-emerald-500">
+            <ShieldCheck size={20} />
+            <h2 className="text-lg font-bold text-stone-900 dark:text-white">Security & 2FA</h2>
+          </div>
+          <TwoFactorSetup enabled={adminUser?.twoFactorEnabled ?? false} />
+        </section>
+
+        {/* Account Details */}
         <section className="bg-white dark:bg-stone-900 p-8 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm mb-8">
           <div className="flex items-center gap-3 mb-6 text-blue-500">
             <User size={20} />
-            <h2 className="text-lg font-bold text-stone-900 dark:text-white">Account</h2>
+            <h2 className="text-lg font-bold text-stone-900 dark:text-white">Admin Account</h2>
           </div>
           <div className="space-y-4">
             <div>
