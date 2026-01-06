@@ -92,161 +92,117 @@ export async function syncVendors() {
   const authRecords = await apl.getAll(); 
 
   if (authRecords.length === 0) {
-    console.error("No Saleor API connected found in database.");
-    throw new Error("No Saleor API connected. Please re-install the app in your Saleor Dashboard to re-authorize.");
+    throw new Error("No Saleor API connected. Please re-install the app.");
   }
 
   const { saleorApiUrl, token } = authRecords[0];
-
-  // Logic 1: Sync from Pages (for marketplaces using pages as vendor profiles)
-  const pageQuery = `
-    query FetchBrands($after: String) {
-      pages(first: 100, after: $after) {
-        pageInfo { hasNextPage, endCursor }
-        edges {
-          node {
-            id
-            title
-            pageType { name }
-          }
-        }
-      }
-    }
-  `;
-
   const BRAND_ATTRIBUTE_ID = "QXR0cmlidXRlOjQ0";
 
-  // Omni-Discovery Strategy: Target "Brand" models specifically
-  const discoveryQuery = `
-    query DiscoverVendors {
-      # Vector 1: Fetch Page Types to find the "Brand" model definition
-      pageTypes(first: 100) {
-        edges {
-          node {
-            id
-            name
-          }
-        }
-      }
-      # Vector 2: Fetch all Pages (limit 100 for discovery)
-      pages(first: 100) {
-        edges {
-          node {
-            id
-            title
-            slug
-            pageType {
-              id
-              name
-            }
-          }
-        }
-      }
-      # Vector 3: Global Attribute Discovery
-      attributes(filter: {search: "Brand"}, first: 20) {
-        edges {
-          node {
-            id
-            name
-            choices(first: 100) {
-              edges {
-                node {
-                  id name slug
-                }
+  const fetchAllPages = async () => {
+    let hasNextPage = true;
+    let after = null;
+    let vendors: { id: string, name: string }[] = [];
+
+    while (hasNextPage) {
+      const query = `
+        query DiscoverPages($after: String) {
+          pages(first: 100, after: $after) {
+            pageInfo { hasNextPage endCursor }
+            edges {
+              node {
+                id
+                title
+                slug
+                pageType { name }
               }
             }
           }
         }
-      }
+      `;
+
+      const response = await fetch(saleorApiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ query, variables: { after } }),
+      });
+      
+      const json: any = await response.json();
+      const pagesData = json.data?.pages;
+      
+      (pagesData?.edges || []).forEach((edge: any) => {
+        const page = edge.node;
+        const typeName = (page.pageType?.name || "").toLowerCase();
+        const slug = (page.slug || "").toLowerCase();
+
+        if (typeName.includes("brand") || slug === "saleordevelopmentstore") {
+          vendors.push({ id: page.slug, name: page.title });
+          console.log(`[SYNC] HIT: "${page.title}"`);
+        }
+      });
+
+      hasNextPage = pagesData?.pageInfo?.hasNextPage;
+      after = pagesData?.pageInfo?.endCursor;
     }
-  `;
+    return vendors;
+  };
+
+  const fetchAttributeChoices = async () => {
+    let hasNextPage = true;
+    let after = null;
+    let vendors: { id: string, name: string }[] = [];
+
+    while (hasNextPage) {
+      const query = `
+        query DiscoverAttributes($after: String) {
+          attribute(id: "${BRAND_ATTRIBUTE_ID}") {
+            choices(first: 100, after: $after) {
+              pageInfo { hasNextPage endCursor }
+              edges {
+                node { id name slug }
+              }
+            }
+          }
+        }
+      `;
+
+      const response = await fetch(saleorApiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ query, variables: { after } }),
+      });
+      
+      const json: any = await response.json();
+      const choicesData = json.data?.attribute?.choices;
+
+      (choicesData?.edges || []).forEach((c: any) => {
+        vendors.push({ id: c.node.slug, name: c.node.name });
+      });
+
+      hasNextPage = choicesData?.pageInfo?.hasNextPage;
+      after = choicesData?.pageInfo?.endCursor;
+    }
+    return vendors;
+  };
 
   let foundVendors: { id: string, name: string }[] = [];
 
   try {
-    console.log(`[SYNC] Executing omni-discovery on ${saleorApiUrl}`);
-    
-    const response = await fetch(saleorApiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-      body: JSON.stringify({ query: discoveryQuery }),
-    });
-    
-    const json: any = await response.json();
-    if (json.errors) {
-      console.error("[SYNC] Saleor GraphQL Protocol Errors:", JSON.stringify(json.errors, null, 2));
-    }
-
-    const data = json.data;
-
-    // STEP 1: Identify "Brand" Page Types
-    const brandTypeIds = (data?.pageTypes?.edges || [])
-      .filter((e: any) => e.node.name.toLowerCase() === "brand")
-      .map((e: any) => e.node.id);
-    
-    console.log(`[SYNC] Identified ${brandTypeIds.length} PageTypes named "Brand"`);
-
-    // STEP 2: Process Pages
-    if (data?.pages?.edges) {
-      data.pages.edges.forEach((e: any) => {
-        const page = e.node;
-        const typeName = (page.pageType?.name || "").toLowerCase();
-        const typeId = page.pageType?.id;
-        const title = (page.title || "").toLowerCase();
-        const slug = (page.slug || "").toLowerCase();
-
-        // High-Confidence Match: Official "Brand" Page Type
-        const isOfficialBrand = brandTypeIds.includes(typeId) || typeName === "brand";
-        
-        // Logical Match: Name contains "Brand" or matches known store
-        const isNamingMatch = title.includes("brand") || 
-                             slug.includes("saleordevelopmentstore") ||
-                             title.includes("saleordevelopmentstore");
-
-        if (isOfficialBrand || isNamingMatch) {
-          foundVendors.push({ id: page.slug, name: page.title });
-          console.log(`[SYNC] Found Match: "${page.title}" [Type: ${page.pageType?.name}, ID: ${page.slug}]`);
-        }
-      });
-    }
-
-    // STEP 3: Process Attributes (Fallback)
-    if (data?.attributes?.edges) {
-      data.attributes.edges.forEach((edge: any) => {
-        const choices = edge.node.choices?.edges || [];
-        choices.forEach((c: any) => {
-          foundVendors.push({ id: c.node.slug, name: c.node.name });
-          console.log(`[SYNC] Found Attribute-Brand: "${c.node.name}" [Slug: ${c.node.slug}]`);
-        });
-      });
-    }
-
-    // STEP 4: Fallback for hardcoded attribute (Backwards Compatibility)
-    if (foundVendors.length === 0) {
-      console.log("[SYNC] No vendors found via primary discovery. Attempting legacy attribute fallback...");
-      const priorityResponse = await fetch(saleorApiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-        body: JSON.stringify({ 
-          query: `query { attribute(id: "${BRAND_ATTRIBUTE_ID}") { choices(first: 100) { edges { node { id name slug } } } } }`
-        }),
-      });
-      const priorityJson: any = await priorityResponse.json();
-      (priorityJson.data?.attribute?.choices?.edges || []).forEach((c: any) => {
-        foundVendors.push({ id: c.node.slug, name: c.node.name });
-      });
-    }
-
+    console.log(`[SYNC] Starting deep sync for ${saleorApiUrl}`);
+    const [pageVendors, attrVendors] = await Promise.all([
+      fetchAllPages(),
+      fetchAttributeChoices()
+    ]);
+    foundVendors = [...pageVendors, ...attrVendors];
   } catch (err) {
-    console.error("[SYNC] Fatal Connection Error:", err);
+    console.error("[SYNC] Connection failed:", err);
   }
 
-  // Deduplicate by slug
+  // Deduplicate and Persist
   const uniqueVendors = Array.from(new Map(foundVendors.map(v => [v.id, v])).values());
-  console.log(`[SYNC] Complete. Persisting ${uniqueVendors.length} unique vendors.`);
-
   const globalSettings = await (prisma as any).systemSettings.findUnique({ where: { id: "global" } });
   const defaultRate = globalSettings?.defaultCommissionRate ?? 10.0;
+
+  console.log(`[SYNC] Persisting ${uniqueVendors.length} vendors to database.`);
 
   for (const v of uniqueVendors) {
     await (prisma.vendorProfile as any).upsert({
