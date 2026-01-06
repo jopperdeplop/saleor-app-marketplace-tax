@@ -17,7 +17,7 @@ async function callPortalApi(path: string, method: string, body: any) {
       "Content-Type": "application/json",
       Authorization: `Bearer ${secret}`,
     },
-    body: JSON.stringify(body),
+    body: method !== "GET" && body ? JSON.stringify(body) : undefined,
   });
 
   if (!response.ok) {
