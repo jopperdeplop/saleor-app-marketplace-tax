@@ -43,3 +43,17 @@ export async function updateFeatureStatus(id: number, status: string) {
   await callPortalApi("/api/admin/feature-requests", "PATCH", { id, status });
   revalidatePath("/dashboard/feature-requests");
 }
+
+export async function getPortalUsers() {
+  const session = await auth();
+  if (!session) throw new Error("Unauthorized");
+
+  return callPortalApi("/api/admin/users", "GET", null);
+}
+
+export async function triggerPortalPasswordReset(email: string) {
+  const session = await auth();
+  if (!session) throw new Error("Unauthorized");
+
+  await callPortalApi("/api/admin/users/reset-password", "POST", { email });
+}
