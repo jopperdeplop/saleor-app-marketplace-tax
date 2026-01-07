@@ -87,25 +87,25 @@ export async function MarketplaceTaxDashboard() {
               <div className={`p-2 rounded-lg ${stat.bgColor} ${stat.color}`}>
                 <stat.icon size={20} />
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">{stat.label}</span>
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-text-secondary opacity-60">{stat.label}</span>
             </div>
-            <div className="text-3xl font-bold mb-2">{stat.value}</div>
-            <p className="text-[10px] text-text-secondary font-medium uppercase tracking-tighter">{stat.description}</p>
+            <div className="text-3xl font-extrabold mb-2 text-text-primary">{stat.value}</div>
+            <p className="text-[10px] text-text-secondary font-extrabold uppercase tracking-widest opacity-40">{stat.description}</p>
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           {topOssCountries.length > 0 && (
-            <div className="xl:col-span-2 bg-stone-50/50 dark:bg-stone-900/10 border border-border-custom rounded-3xl p-6">
+            <div className="xl:col-span-2 bg-card border border-border-custom rounded-3xl p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-4 text-purple-600">
                 <Globe size={18} />
-                <h3 className="text-[11px] font-bold uppercase tracking-widest">Global OSS Exposure Breakdown</h3>
+                <h3 className="text-[11px] font-bold uppercase tracking-widest text-text-secondary">Global OSS Exposure Breakdown</h3>
               </div>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                 {topOssCountries.map(([country, volume]) => (
                   <div key={country} className="flex flex-col">
-                    <span className="text-2xl font-bold">€{(volume as number).toFixed(2)}</span>
+                    <span className="text-2xl font-extrabold text-text-primary">€{(volume as number).toFixed(2)}</span>
                     <span className="text-[10px] font-bold text-text-secondary uppercase">{country} Revenue</span>
                   </div>
                 ))}
@@ -113,24 +113,24 @@ export async function MarketplaceTaxDashboard() {
             </div>
           )}
 
-          <div className="bg-white dark:bg-stone-900/40 border border-border-custom rounded-3xl p-6">
-              <div className="flex items-center gap-3 mb-4 text-stone-500">
+          <div className="bg-card border border-border-custom rounded-3xl p-6 shadow-sm">
+              <div className="flex items-center gap-3 mb-4 text-text-secondary">
                 <ShieldCheck size={18} />
                 <h3 className="text-[11px] font-bold uppercase tracking-widest">Legal Hub Information</h3>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-4">
                   <div>
-                      <div className="text-[9px] font-bold text-stone-400 uppercase">Entity Name</div>
-                      <div className="text-sm font-bold">{(settings as any)?.companyName || "Saleor Marketplace NL"}</div>
+                      <div className="text-[9px] font-bold text-text-secondary/60 uppercase tracking-widest">Entity Name</div>
+                      <div className="text-sm font-extrabold text-text-primary">{(settings as any)?.companyName || "Saleor Marketplace NL"}</div>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-end">
                       <div>
-                          <div className="text-[9px] font-bold text-stone-400 uppercase">VAT Number</div>
+                          <div className="text-[9px] font-bold text-text-secondary/60 uppercase tracking-widest">VAT Number</div>
                           <div className="text-xs font-mono font-bold text-accent">{(settings as any)?.vatNumber || "NL812345678B01"}</div>
                       </div>
                       <div className="text-right">
-                          <div className="text-[9px] font-bold text-stone-400 uppercase">OSS Status</div>
-                          <div className="text-[10px] font-bold text-green-600 uppercase">Active Agent</div>
+                          <div className="text-[9px] font-bold text-text-secondary/60 uppercase tracking-widest">OSS Status</div>
+                          <div className="text-[10px] font-bold text-green-600 uppercase bg-green-500/10 px-2 py-0.5 rounded">Active Agent</div>
                       </div>
                   </div>
               </div>

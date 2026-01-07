@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   :root {
     /* Light Theme */
@@ -34,6 +36,8 @@
   --color-accent: var(--accent);
   --color-card: var(--bg-card);
   --color-border-custom: var(--border-color);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
 
   --font-sans: "Inter", system-ui, sans-serif;
   --font-serif: "Times New Roman", Times, serif;

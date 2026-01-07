@@ -55,13 +55,13 @@ export default async function FeatureRequestsPage() {
   const pending = requests.filter((r) => r.status === "pending");
 
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 p-6 md:p-12">
+    <div className="min-h-screen bg-background p-6 md:p-12">
       <div className="max-w-6xl mx-auto">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-stone-500 hover:text-accent mb-8 transition-colors font-medium"
+          className="inline-flex items-center gap-2 text-text-secondary hover:text-accent mb-8 transition-colors text-[10px] font-extrabold uppercase tracking-widest"
         >
-          <ArrowLeft size={20} /> Back to Dashboard
+          <ArrowLeft size={20} /> Dashboard
         </Link>
 
         <header className="mb-12">
@@ -69,11 +69,11 @@ export default async function FeatureRequestsPage() {
             <div className="p-3 bg-purple-500/10 rounded-xl">
               <Sparkles size={32} />
             </div>
-            <h1 className="text-3xl font-bold font-serif text-stone-900 dark:text-white">
+            <h1 className="text-3xl font-bold font-serif text-text-primary">
               Feature Requests
             </h1>
           </div>
-          <p className="text-stone-500 text-lg">
+          <p className="text-text-secondary text-lg">
             Review feature requests submitted by vendors from the partner portal.
           </p>
         </header>
@@ -83,18 +83,18 @@ export default async function FeatureRequestsPage() {
           <AlertCircle className="w-8 h-8 text-amber-500" />
           <div>
             <p className="text-2xl font-bold text-amber-500">{pending.length} pending</p>
-            <p className="text-sm text-stone-500">Feature requests awaiting review</p>
+            <p className="text-sm text-text-secondary">Feature requests awaiting review</p>
           </div>
         </div>
 
         {/* Requests List */}
-        <div className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 overflow-hidden">
-          <div className="px-6 py-4 border-b border-stone-200 dark:border-stone-800">
-            <h2 className="font-bold text-stone-900 dark:text-white">All Requests</h2>
+        <div className="bg-card rounded-3xl border border-border-custom shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-border-custom bg-stone-50/30 dark:bg-stone-950/20">
+            <h2 className="font-bold text-text-primary">All Requests</h2>
           </div>
 
           {requests.length === 0 ? (
-            <div className="p-12 text-center text-stone-400">
+            <div className="p-12 text-center text-text-secondary/50">
               <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <p>No feature requests yet</p>
             </div>
@@ -103,7 +103,7 @@ export default async function FeatureRequestsPage() {
           )}
         </div>
 
-        <p className="text-center text-stone-400 text-sm mt-8">
+        <p className="text-center text-text-secondary/40 text-[10px] font-extrabold uppercase tracking-widest mt-8">
           Status changes will be visible to vendors in their partner portal dashboard.
         </p>
       </div>

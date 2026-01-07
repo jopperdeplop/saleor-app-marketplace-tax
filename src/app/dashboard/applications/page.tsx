@@ -58,13 +58,13 @@ export default async function ApplicationsPage() {
   const rejected = applications.filter((a) => a.status === "rejected");
 
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 p-6 md:p-12">
+    <div className="min-h-screen bg-background p-6 md:p-12">
       <div className="max-w-6xl mx-auto">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-stone-500 hover:text-accent mb-8 transition-colors font-medium"
+          className="inline-flex items-center gap-2 text-text-secondary hover:text-accent mb-8 transition-colors text-[10px] font-extrabold uppercase tracking-widest"
         >
-          <ArrowLeft size={20} /> Back to Dashboard
+          <ArrowLeft size={20} /> Dashboard
         </Link>
 
         <header className="mb-12">
@@ -72,11 +72,11 @@ export default async function ApplicationsPage() {
             <div className="p-3 bg-blue-500/10 rounded-xl">
               <Users size={32} />
             </div>
-            <h1 className="text-3xl font-bold font-serif text-stone-900 dark:text-white">
+            <h1 className="text-3xl font-bold font-serif text-text-primary">
               Vendor Applications
             </h1>
           </div>
-          <p className="text-stone-500 text-lg">
+          <p className="text-text-secondary text-lg">
             Review and manage vendor onboarding requests from the partner portal.
           </p>
         </header>
@@ -85,29 +85,29 @@ export default async function ApplicationsPage() {
         <div className="grid grid-cols-3 gap-4 mb-8">
           <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-6 text-center">
             <Clock className="w-8 h-8 text-amber-500 mx-auto mb-2" />
-            <p className="text-3xl font-bold text-amber-500">{pending.length}</p>
-            <p className="text-sm text-stone-500">Pending</p>
+            <p className="text-3xl font-extrabold text-amber-500">{pending.length}</p>
+            <p className="text-[10px] font-extrabold uppercase tracking-widest text-text-secondary/60">Pending</p>
           </div>
           <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-6 text-center">
             <CheckCircle className="w-8 h-8 text-green-500 mx-auto mb-2" />
-            <p className="text-3xl font-bold text-green-500">{approved.length}</p>
-            <p className="text-sm text-stone-500">Approved</p>
+            <p className="text-3xl font-extrabold text-green-500">{approved.length}</p>
+            <p className="text-[10px] font-extrabold uppercase tracking-widest text-text-secondary/60">Approved</p>
           </div>
           <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6 text-center">
             <XCircle className="w-8 h-8 text-red-500 mx-auto mb-2" />
-            <p className="text-3xl font-bold text-red-500">{rejected.length}</p>
-            <p className="text-sm text-stone-500">Rejected</p>
+            <p className="text-3xl font-extrabold text-red-500">{rejected.length}</p>
+            <p className="text-[10px] font-extrabold uppercase tracking-widest text-text-secondary/60">Rejected</p>
           </div>
         </div>
 
         {/* Applications List */}
-        <div className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 overflow-hidden">
-          <div className="px-6 py-4 border-b border-stone-200 dark:border-stone-800">
-            <h2 className="font-bold text-stone-900 dark:text-white">All Applications</h2>
+        <div className="bg-card rounded-3xl border border-border-custom shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-border-custom bg-stone-50/30 dark:bg-stone-950/20">
+            <h2 className="font-bold text-text-primary">All Applications</h2>
           </div>
 
           {applications.length === 0 ? (
-            <div className="p-12 text-center text-stone-400">
+            <div className="p-12 text-center text-text-secondary/50">
               <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <p>No applications yet</p>
             </div>
@@ -116,7 +116,7 @@ export default async function ApplicationsPage() {
           )}
         </div>
 
-        <p className="text-center text-stone-400 text-sm mt-8">
+        <p className="text-center text-text-secondary/40 text-[10px] font-extrabold uppercase tracking-widest mt-8">
           Decisions made here will automatically create vendor accounts in the partner portal.
         </p>
       </div>

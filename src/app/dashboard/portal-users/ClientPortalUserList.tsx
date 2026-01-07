@@ -41,20 +41,20 @@ export default function ClientPortalUserList({ initialUsers }: { initialUsers: P
   };
 
   return (
-    <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl overflow-hidden shadow-sm">
-      <div className="p-8 border-b border-stone-200 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/20">
+    <div className="bg-card border border-border-custom rounded-3xl overflow-hidden shadow-sm">
+      <div className="p-8 border-b border-border-custom bg-stone-50/30 dark:bg-stone-900/10">
         <div className="flex flex-col md:flex-row justify-between gap-4">
             <div className="relative max-w-md w-full">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" size={20} />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary/50" size={20} />
                 <input
                     type="text"
                     placeholder="Search users..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full pl-12 pr-4 py-3 bg-card border border-border-custom rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-text-primary"
                 />
             </div>
-            <div className="text-sm text-stone-500 flex items-center">
+            <div className="text-sm text-text-secondary flex items-center">
                 {filteredUsers.length} active users found
             </div>
         </div>
@@ -62,63 +62,63 @@ export default function ClientPortalUserList({ initialUsers }: { initialUsers: P
 
       <div className="overflow-x-auto">
         <table className="w-full text-left">
-            <thead className="bg-stone-50 dark:bg-stone-950 text-stone-500 border-b border-stone-200 dark:border-stone-800">
+            <thead className="bg-stone-50/50 dark:bg-stone-950/50 text-text-secondary border-b border-border-custom">
                 <tr>
-                    <th className="px-8 py-4 font-bold text-xs uppercase tracking-widest">User</th>
-                    <th className="px-8 py-4 font-bold text-xs uppercase tracking-widest">Brand/Role</th>
-                    <th className="px-8 py-4 font-bold text-xs uppercase tracking-widest text-center">Security</th>
-                    <th className="px-8 py-4 font-bold text-xs uppercase tracking-widest text-right">Actions</th>
+                    <th className="px-8 py-4 font-bold text-[10px] uppercase tracking-widest opacity-60">User</th>
+                    <th className="px-8 py-4 font-bold text-[10px] uppercase tracking-widest opacity-60">Brand/Role</th>
+                    <th className="px-8 py-4 font-bold text-[10px] uppercase tracking-widest text-center opacity-60">Security</th>
+                    <th className="px-8 py-4 font-bold text-[10px] uppercase tracking-widest text-right opacity-60">Actions</th>
                 </tr>
             </thead>
-            <tbody className="divide-y divide-stone-200 dark:divide-stone-800">
+            <tbody className="divide-y divide-border-custom">
                 {filteredUsers.length === 0 ? (
                     <tr>
-                        <td colSpan={4} className="px-8 py-12 text-center text-stone-500">
+                        <td colSpan={4} className="px-8 py-12 text-center text-text-secondary">
                             No users match your search.
                         </td>
                     </tr>
                 ) : (
                     filteredUsers.map(user => (
-                        <tr key={user.id} className="group hover:bg-stone-50 dark:hover:bg-stone-900/50 transition-colors">
+                        <tr key={user.id} className="group hover:bg-stone-50 dark:hover:bg-stone-800/20 transition-colors">
                             <td className="px-8 py-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-500">
+                                    <div className="w-10 h-10 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-text-secondary">
                                         <User size={20} />
                                     </div>
                                     <div>
-                                        <div className="font-bold text-stone-900 dark:text-white">{user.name}</div>
-                                        <div className="text-xs text-stone-500">{user.email}</div>
+                                        <div className="font-bold text-text-primary">{user.name}</div>
+                                        <div className="text-xs text-text-secondary">{user.email}</div>
                                     </div>
                                 </div>
                             </td>
                             <td className="px-8 py-4">
-                                <div className="font-medium text-stone-900 dark:text-white">{user.brand || "Internal"}</div>
-                                <div className="text-xs text-stone-500 capitalize">{user.role || "N/A"}</div>
+                                <div className="font-medium text-text-primary">{user.brand || "Internal"}</div>
+                                <div className="text-xs text-text-secondary capitalize">{user.role || "N/A"}</div>
                             </td>
                             <td className="px-8 py-4 text-center">
                                 {user.twoFactorEnabled ? (
-                                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-500/10 text-green-600 rounded text-xs font-bold">
-                                        <Shield size={12} /> 2FA
+                                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-500/10 text-green-600 rounded text-[10px] font-extrabold uppercase tracking-tighter">
+                                        <Shield size={10} /> 2FA
                                     </span>
                                 ) : (
-                                    <span className="text-stone-400 text-xs">-</span>
+                                    <span className="text-text-secondary/30 text-xs">-</span>
                                 )}
                             </td>
                             <td className="px-8 py-4 text-right">
                                 <div className="flex justify-end gap-2">
                                      <Link
                                          href={user.brand ? `/dashboard/vendor/${encodeURIComponent(user.brand)}` : '#'}
-                                         className={`inline-flex items-center gap-2 px-3 py-2 bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20 rounded-lg text-xs font-bold transition-colors ${!user.brand ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                         className={`inline-flex items-center gap-2 px-3 py-2 bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20 rounded-lg text-[10px] font-extrabold uppercase tracking-widest transition-colors ${!user.brand ? 'opacity-50 cursor-not-allowed' : ''}`}
                                      >
                                          Manage
                                      </Link>
                                      <button
                                          onClick={() => handleReset(user.email)}
                                          disabled={resettingMap[user.email]}
-                                         className="inline-flex items-center gap-2 px-3 py-2 bg-stone-100 dark:bg-stone-800 hover:bg-red-500/10 hover:text-red-500 rounded-lg text-xs font-bold transition-colors disabled:opacity-50"
+                                         className="inline-flex items-center gap-2 px-3 py-2 bg-stone-100 dark:bg-stone-800 hover:bg-red-500/10 hover:text-red-500 text-text-primary rounded-lg text-[10px] font-extrabold uppercase tracking-widest transition-colors disabled:opacity-50"
                                      >
-                                         <KeyRound size={14} className={resettingMap[user.email] ? "animate-spin" : ""} />
-                                         {resettingMap[user.email] ? "Sending..." : "Reset Password"}
+                                         <RotateCcw size={14} className={resettingMap[user.email] ? "animate-spin" : ""} />
+                                         {resettingMap[user.email] ? "..." : "Reset"}
                                      </button>
                                 </div>
                             </td>

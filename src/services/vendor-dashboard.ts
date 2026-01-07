@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getPortalUsers } from "@/app/actions/admin";
+import { PrismaAPL } from "@/lib/prisma-apl";
 
 export const getVendorData = async (brandSlug: string) => {
   // 1. Fetch local profile
@@ -48,10 +49,58 @@ export const getVendorData = async (brandSlug: string) => {
     orderBy: { createdAt: "desc" },
   });
 
+  // 3. Fetch Real Platform Performance from Saleor
+  let platformStats = {
+    productCount: 0,
+    totalOrders: (vendor.commissions || []).length,
+    avgOrderValue: 0
+  };
+
+  try {
+    const apl = new PrismaAPL();
+    const authRecords = await apl.getAll(); 
+    if (authRecords.length > 0) {
+      const { saleorApiUrl, token } = authRecords[0];
+      const BRAND_ATTRIBUTE_ID = "QXR0cmlidXRlOjQ0"; // Same as in actions.ts
+
+      const query = `
+        query BrandStats($attributeId: ID!, $brandValue: String!) {
+          products(filter: { attributes: [{ id: $attributeId, values: [$brandValue] }] }) {
+            totalCount
+          }
+        }
+      `;
+
+      const response = await fetch(saleorApiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ 
+          query, 
+          variables: { 
+            attributeId: BRAND_ATTRIBUTE_ID, 
+            brandValue: vendor.brandAttributeValue 
+          } 
+        }),
+      });
+      
+      const json: any = await response.json();
+      platformStats.productCount = json.data?.products?.totalCount || 0;
+    }
+  } catch (err) {
+    console.error("Failed to fetch product count from Saleor:", err);
+  }
+
+  // Calculate internal financials
+  if (platformStats.totalOrders > 0) {
+    const totalGross = (vendor.commissions || []).reduce((acc: number, c: any) => acc + Number(c.orderGrossTotal), 0);
+    platformStats.avgOrderValue = totalGross / platformStats.totalOrders;
+  }
+
   return { 
     vendor, 
     commissions: vendor.commissions || [], 
     invoices,
-    portalUser 
+    portalUser,
+    platformStats
   };
 };

@@ -43,23 +43,23 @@ export default async function Home() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-12">
           <Link href="/dashboard/portal-users" className="group bg-indigo-500/5 border border-indigo-500/20 rounded-2xl p-6 hover:bg-indigo-500/10 transition-all">
             <Users className="w-8 h-8 text-indigo-500 mb-3" />
-            <h3 className="font-bold text-stone-900 dark:text-white group-hover:text-indigo-500 transition-colors">Portal Users</h3>
-            <p className="text-sm text-stone-500 mt-1">Manage partner accounts</p>
+            <h3 className="font-bold text-text-primary group-hover:text-indigo-500 transition-colors">Portal Users</h3>
+            <p className="text-sm text-text-secondary mt-1">Manage partner accounts</p>
           </Link>
           <Link href="/dashboard/applications" className="group bg-blue-500/5 border border-blue-500/20 rounded-2xl p-6 hover:bg-blue-500/10 transition-all">
             <Users className="w-8 h-8 text-blue-500 mb-3" />
-            <h3 className="font-bold text-stone-900 dark:text-white group-hover:text-blue-500 transition-colors">Vendor Applications</h3>
-            <p className="text-sm text-stone-500 mt-1">Review onboarding requests</p>
+            <h3 className="font-bold text-text-primary group-hover:text-blue-500 transition-colors">Vendor Applications</h3>
+            <p className="text-sm text-text-secondary mt-1">Review onboarding requests</p>
           </Link>
           <Link href="/dashboard/feature-requests" className="group bg-purple-500/5 border border-purple-500/20 rounded-2xl p-6 hover:bg-purple-500/10 transition-all">
             <Sparkles className="w-8 h-8 text-purple-500 mb-3" />
-            <h3 className="font-bold text-stone-900 dark:text-white group-hover:text-purple-500 transition-colors">Feature Requests</h3>
-            <p className="text-sm text-stone-500 mt-1">Vendor feedback & ideas</p>
+            <h3 className="font-bold text-text-primary group-hover:text-purple-500 transition-colors">Feature Requests</h3>
+            <p className="text-sm text-text-secondary mt-1">Vendor feedback & ideas</p>
           </Link>
           <Link href="/dashboard/settings" className="group bg-accent/5 border border-accent/20 rounded-2xl p-6 hover:bg-accent/10 transition-all">
             <Settings className="w-8 h-8 text-accent mb-3" />
-            <h3 className="font-bold text-stone-900 dark:text-white group-hover:text-accent transition-colors">Settings</h3>
-            <p className="text-sm text-stone-500 mt-1">Global configuration</p>
+            <h3 className="font-bold text-text-primary group-hover:text-accent transition-colors">Settings</h3>
+            <p className="text-sm text-text-secondary mt-1">Global configuration</p>
           </Link>
         </div>
 

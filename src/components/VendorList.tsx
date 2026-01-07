@@ -60,14 +60,14 @@ export function VendorList() {
 
   return (
     <section className="bg-card border border-border-custom rounded-3xl overflow-hidden mt-12 shadow-sm">
-      <div className="p-8 md:p-12 border-b border-border-custom bg-stone-50/50 dark:bg-stone-900/20">
+      <div className="p-8 md:p-12 border-b border-border-custom bg-stone-50/30 dark:bg-stone-900/10">
         <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-accent/10 rounded-xl text-accent">
               <Users size={24} />
             </div>
             <div>
-              <h2 className="text-2xl font-bold font-serif">Vendor Portals</h2>
+              <h2 className="text-2xl font-bold font-serif text-text-primary">Vendor Portals</h2>
               <p className="text-text-secondary text-sm">
                 Access individual vendor dashboards to view their specific financial data.
               </p>
@@ -80,20 +80,20 @@ export function VendorList() {
               placeholder="Search vendors..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-4 py-2 bg-white dark:bg-stone-950 border border-border-custom rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent min-w-[240px]"
+              className="px-4 py-2 bg-card border border-border-custom rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent min-w-[240px] text-text-primary"
             />
             <div className="flex gap-2">
                 <button
                     onClick={handleSync}
                     disabled={syncing}
-                    className="px-4 py-2 bg-stone-200 dark:bg-stone-800 hover:bg-stone-300 dark:hover:bg-stone-700 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 disabled:opacity-50 whitespace-nowrap"
+                    className="px-4 py-2 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-text-primary rounded-lg text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 disabled:opacity-50 whitespace-nowrap"
                 >
                     <RefreshCw size={14} className={syncing ? "animate-spin" : ""} /> 
                     {syncing ? "Syncing..." : "Sync"}
                 </button>
                 <Link 
                 href="/dashboard/register-vendor"
-                className="px-4 py-2 bg-stone-900 dark:bg-white text-white dark:text-stone-900 hover:opacity-90 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
+                className="px-4 py-2 bg-text-primary text-background hover:opacity-90 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
                 >
                 <Users size={14} /> Register New
                 </Link>
@@ -117,7 +117,7 @@ export function VendorList() {
             <button 
                 onClick={handleSync}
                 disabled={syncing}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 rounded-xl font-bold transition-colors disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 rounded-xl font-bold transition-colors disabled:opacity-50 text-text-primary"
             >
                  <RefreshCw size={16} className={syncing ? "animate-spin" : ""} /> 
                  {syncing ? "Syncing..." : "Sync from Saleor"}
@@ -133,10 +133,10 @@ export function VendorList() {
       ) : (
         <table className="w-full text-left border-collapse">
             <thead>
-            <tr className="bg-stone-100 dark:bg-stone-950 text-stone-500 border-b border-border-custom">
-                <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500/60">Tax Identity</th>
-                <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-stone-500/60">Fee Engine</th>
-                <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-right text-stone-500/60">Marketplace Hub</th>
+            <tr className="bg-stone-50/50 dark:bg-stone-950/50 text-text-secondary border-b border-border-custom">
+                <th className="px-8 py-4 text-[10px] font-extrabold uppercase tracking-widest opacity-60">Tax Identity</th>
+                <th className="px-8 py-4 text-[10px] font-extrabold uppercase tracking-widest opacity-60">Fee Engine</th>
+                <th className="px-8 py-4 text-[10px] font-extrabold uppercase tracking-widest text-right opacity-60">Marketplace Hub</th>
             </tr>
             </thead>
             <tbody className="divide-y divide-border-custom">

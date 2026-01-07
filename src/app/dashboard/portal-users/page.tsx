@@ -13,16 +13,16 @@ export default async function PortalUsersPage() {
   }
 
   return (
-    <div className="p-6 md:p-12 max-w-[1600px] mx-auto">
+    <div className="p-6 md:p-12 max-w-[1600px] mx-auto min-h-screen bg-background">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <div>
           <div className="flex items-center gap-3 mb-2 text-indigo-500">
             <div className="p-2 bg-indigo-500/10 rounded-lg">
               <Users size={24} />
             </div>
-            <h1 className="text-3xl font-bold font-serif text-stone-900 dark:text-white">Portal Users</h1>
+            <h1 className="text-3xl font-bold font-serif text-text-primary">Portal Users</h1>
           </div>
-          <p className="text-stone-500 text-lg max-w-2xl">
+          <p className="text-text-secondary text-lg max-w-2xl">
             View and manage all active accounts on the Partner Portal (vendors and staff).
           </p>
         </div>

@@ -32,9 +32,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <header className="h-16 border-b border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 flex items-center justify-between px-6 sticky top-0 z-10">
+          <header className="h-16 border-b border-border-custom bg-card flex items-center justify-between px-6 sticky top-0 z-10">
              <div className="flex items-center gap-8">
-                <span className="text-xl font-serif font-bold text-stone-900 dark:text-white">Admin Hub</span>
+                <span className="text-xl font-serif font-bold text-text-primary">Admin Hub</span>
                 <Navigation />
              </div>
              <ThemeToggle />
