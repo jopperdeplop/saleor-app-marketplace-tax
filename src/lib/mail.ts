@@ -30,10 +30,16 @@ export async function sendPasswordResetEmail(email: string, token: string) {
         <p style="font-size: 12px; color: #999;">Saleor Admin Hub Security</p>
       </div>
     `,
+    trackingSettings: {
+      clickTracking: {
+        enable: false,
+        enableText: false,
+      },
+    },
   };
 
   try {
-    await sgMail.send(msg);
+    await sgMail.send(msg as any);
   } catch (error) {
     console.error('Error sending password reset email:', error);
     throw error;
@@ -54,10 +60,16 @@ export async function send2FAAlertEmail(email: string, enabled: boolean) {
         <p style="font-size: 12px; color: #999;">Saleor Marketplace Security</p>
       </div>
     `,
+    trackingSettings: {
+      clickTracking: {
+        enable: false,
+        enableText: false,
+      },
+    },
   };
 
   try {
-    await sgMail.send(msg);
+    await sgMail.send(msg as any);
   } catch (error) {
     console.error('Error sending 2FA alert email:', error);
   }
