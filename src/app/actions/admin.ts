@@ -65,3 +65,11 @@ export async function triggerPortalPasswordReset(email: string) {
 
   await callPortalApi("/api/admin/users/reset-password", "POST", { email });
 }
+
+export async function updatePortalUser(id: string | number, updates: any) {
+  const session = await auth();
+  if (!session) throw new Error("Unauthorized");
+
+  await callPortalApi("/api/admin/users", "PATCH", { id, ...updates });
+  revalidatePath("/dashboard/portal-users");
+}

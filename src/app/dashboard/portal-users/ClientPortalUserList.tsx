@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Search, RefreshCw, KeyRound, Shield, User, RotateCcw } from "lucide-react";
+import Link from "next/link";
 import { triggerPortalPasswordReset } from "@/app/actions/admin";
 
 interface PortalUser {
@@ -104,14 +105,22 @@ export default function ClientPortalUserList({ initialUsers }: { initialUsers: P
                                 )}
                             </td>
                             <td className="px-8 py-4 text-right">
-                                <button
-                                    onClick={() => handleReset(user.email)}
-                                    disabled={resettingMap[user.email]}
-                                    className="inline-flex items-center gap-2 px-3 py-2 bg-stone-100 dark:bg-stone-800 hover:bg-red-500/10 hover:text-red-500 rounded-lg text-xs font-bold transition-colors disabled:opacity-50"
-                                >
-                                    <KeyRound size={14} className={resettingMap[user.email] ? "animate-spin" : ""} />
-                                    {resettingMap[user.email] ? "Sending..." : "Reset Password"}
-                                </button>
+                                <div className="flex justify-end gap-2">
+                                     <Link
+                                         href={user.brand ? `/dashboard/vendor/${encodeURIComponent(user.brand)}` : '#'}
+                                         className={`inline-flex items-center gap-2 px-3 py-2 bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20 rounded-lg text-xs font-bold transition-colors ${!user.brand ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                     >
+                                         Manage
+                                     </Link>
+                                     <button
+                                         onClick={() => handleReset(user.email)}
+                                         disabled={resettingMap[user.email]}
+                                         className="inline-flex items-center gap-2 px-3 py-2 bg-stone-100 dark:bg-stone-800 hover:bg-red-500/10 hover:text-red-500 rounded-lg text-xs font-bold transition-colors disabled:opacity-50"
+                                     >
+                                         <KeyRound size={14} className={resettingMap[user.email] ? "animate-spin" : ""} />
+                                         {resettingMap[user.email] ? "Sending..." : "Reset Password"}
+                                     </button>
+                                </div>
                             </td>
                         </tr>
                     ))

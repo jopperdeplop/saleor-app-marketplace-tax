@@ -1,8 +1,10 @@
 import { getVendorData } from "@/services/vendor-dashboard";
 import { notFound } from "next/navigation";
-import { CreditCard, Clock, CheckCircle, Download, Zap, Calendar, ArrowLeft } from "lucide-react";
+import { CreditCard, Clock, CheckCircle, Download, Zap, Calendar, ArrowLeft, Loader2, AlertTriangle, Package } from "lucide-react";
 import { updateVendorOverride, removeVendorOverride } from "@/app/actions";
 import Link from "next/link";
+import { PortalAccountCard } from "@/components/PortalAccountCard";
+import { PlatformStats } from "@/components/PlatformStats";
 
 export default async function VendorDashboard({
   params,
@@ -21,13 +23,14 @@ export default async function VendorDashboard({
   const data = await getVendorData(brandSlug);
 
   if (!data) {
-    console.error("No vendor found in DB for ID:", brandSlug);
+    console.error("No vendor found in DB or Portal for ID:", brandSlug);
     notFound();
   }
 
   const vendor = data.vendor as any;
   const commissions = data.commissions;
   const invoices = data.invoices;
+  const portalUser = data.portalUser;
   
   const now = new Date();
   const hasActiveOverride = vendor.temporaryCommissionEndsAt && new Date(vendor.temporaryCommissionEndsAt) > now;
@@ -46,23 +49,40 @@ export default async function VendorDashboard({
             <h1 className="text-4xl font-bold font-serif mb-2">{vendor.brandName} Portal</h1>
             <p className="text-stone-500">View commissions and manage fee overrides for this partner.</p>
           </div>
-          <div className="bg-white dark:bg-stone-900 px-6 py-4 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-sm relative overflow-hidden group">
-            {hasActiveOverride && (
-              <div className="absolute top-0 right-0 bg-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
-                TEMP OVERRIDE
-              </div>
+          
+          <div className="flex flex-col md:flex-row gap-4 items-center">
+            {vendor.isPlaceholder && (
+               <div className="bg-amber-500/10 text-amber-600 border border-amber-500/20 px-4 py-3 rounded-xl flex items-center gap-3 animate-pulse">
+                  <AlertTriangle size={20} />
+                  <div className="text-xs font-bold uppercase tracking-tight">
+                    Tax Profile Needed
+                  </div>
+               </div>
             )}
-            <span className="text-xs font-bold uppercase tracking-widest text-stone-400 block mb-1">Effective Rate</span>
-            <div className="flex items-baseline gap-1">
-                <span className={`text-2xl font-bold ${hasActiveOverride ? "text-accent" : "text-stone-900 dark:text-white"}`}>
-                    {effectiveRate}%
-                </span>
-                {hasActiveOverride && (
-                    <span className="text-xs text-stone-400 line-through">{vendor.commissionRate}%</span>
-                )}
+            
+            <div className="bg-white dark:bg-stone-900 px-6 py-4 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-sm relative overflow-hidden group">
+              {hasActiveOverride && (
+                <div className="absolute top-0 right-0 bg-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
+                  TEMP OVERRIDE
+                </div>
+              )}
+              <span className="text-xs font-bold uppercase tracking-widest text-stone-400 block mb-1">Effective Rate</span>
+              <div className="flex items-baseline gap-1">
+                  <span className={`text-2xl font-bold ${hasActiveOverride ? "text-accent" : "text-stone-900 dark:text-white"}`}>
+                      {effectiveRate}%
+                  </span>
+                  {hasActiveOverride && (
+                      <span className="text-xs text-stone-400 line-through">{vendor.commissionRate}%</span>
+                  )}
+              </div>
             </div>
           </div>
         </header>
+
+        {/* Account Management Section */}
+        {portalUser && (
+            <PortalAccountCard user={portalUser} />
+        )}
 
         {/* Admin Override Control */}
         <section className="mb-12 bg-white dark:bg-stone-900 p-8 rounded-3xl border border-dashed border-stone-300 dark:border-stone-700 shadow-sm">
@@ -145,6 +165,17 @@ export default async function VendorDashboard({
             <p className="text-[10px] text-stone-500 mt-1 uppercase font-bold">{vendor.vatNumber || "No VAT Number"}</p>
           </div>
         </div>
+
+        {portalUser && (
+            <PortalAccountCard user={portalUser} />
+        )}
+
+        {/* Platform Data Section */}
+        <div className="mb-6 flex items-center gap-2">
+            <Package className="text-stone-400" size={18} />
+            <span className="text-xs font-bold uppercase tracking-widest text-stone-500">Platform Performance</span>
+        </div>
+        <PlatformStats brand={vendor.brandAttributeValue} />
 
         <section className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm overflow-hidden">
           <div className="px-8 py-6 border-b border-stone-200 dark:border-stone-800 flex justify-between items-center bg-stone-50/50 dark:bg-stone-950/20">

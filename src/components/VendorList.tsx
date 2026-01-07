@@ -12,6 +12,7 @@ interface Vendor {
   countryCode: string;
   temporaryCommissionRate?: number | null;
   temporaryCommissionEndsAt?: string | null;
+  isPlaceholder?: boolean;
 }
 
 export function VendorList() {
@@ -160,6 +161,11 @@ export function VendorList() {
                                 <Link href={`/dashboard/vendor/${encodeURIComponent(vendor.brandAttributeValue)}`} className="font-bold text-lg hover:text-accent transition-colors block">
                                     {vendor.brandName}
                                 </Link>
+                                {vendor.isPlaceholder && (
+                                    <span className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 text-[8px] font-bold uppercase tracking-wider border border-amber-500/20">
+                                        Setup Pending
+                                    </span>
+                                )}
                             </div>
                         </td>
                         <td className="px-8 py-6">
