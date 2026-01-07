@@ -1,16 +1,45 @@
-import { getPortalUsers, triggerPortalPasswordReset } from "@/app/actions/admin";
+import { getPortalUsers } from "@/app/actions/admin";
+import { prisma } from "@/lib/prisma";
 import { Users, Search, RefreshCw, KeyRound, Shield, AlertCircle } from "lucide-react";
 import ClientPortalUserList from "./ClientPortalUserList";
 
 export const dynamic = "force-dynamic";
 
 export default async function PortalUsersPage() {
-  let users = [];
+  let portalUsers = [];
   try {
-    users = await getPortalUsers();
+    portalUsers = await getPortalUsers();
   } catch (error) {
     console.error("Failed to load users:", error);
   }
+
+  // Fetch local vendors to find ones missing from portal
+  const localVendors = await prisma.vendorProfile.findMany({
+    select: {
+      brandName: true,
+      brandAttributeValue: true,
+    }
+  });
+
+  const seenBrands = new Set(portalUsers.map((u: any) => u.brand));
+  const mergedUsers = [...portalUsers];
+
+  localVendors.forEach((v) => {
+    if (!seenBrands.has(v.brandAttributeValue)) {
+      mergedUsers.push({
+        id: `local-${v.brandAttributeValue}`,
+        name: v.brandName,
+        email: "No Portal Account",
+        brand: v.brandAttributeValue,
+        role: "Vendor",
+        twoFactorEnabled: false,
+        createdAt: new Date().toISOString(),
+        isLocalOnly: true
+      });
+    }
+  });
+
+  const users = mergedUsers;
 
   return (
     <div className="p-6 md:p-12 max-w-[1600px] mx-auto min-h-screen bg-background">

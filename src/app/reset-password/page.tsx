@@ -34,13 +34,16 @@ function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-900 via-stone-800 to-stone-900 p-6">
-        <div className="max-w-md w-full bg-stone-800/50 backdrop-blur-xl border border-stone-700 p-8 rounded-3xl shadow-2xl text-center">
-          <AlertCircle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-2">Invalid Link</h1>
-          <p className="text-stone-400 mb-6">This password reset link is invalid or has expired.</p>
-          <Link href="/forgot-password" className="text-amber-500 hover:text-amber-400 font-medium transition-colors">
-             Request a new link
+      <div className="min-h-screen flex items-center justify-center bg-background p-6">
+        <div className="max-w-md w-full bg-card border border-border-custom p-12 rounded-[40px] shadow-2xl text-center">
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-6 opacity-80" />
+          <h1 className="text-3xl font-extrabold text-text-primary mb-3 font-serif">Invalid Link</h1>
+          <p className="text-text-secondary text-lg mb-8">This password reset link is invalid or has expired.</p>
+          <Link 
+            href="/forgot-password" 
+            className="inline-flex items-center gap-2 px-8 py-3 bg-text-primary text-background rounded-full font-extrabold uppercase text-[10px] tracking-widest hover:opacity-90 transition-opacity"
+          >
+             Request New Link
           </Link>
         </div>
       </div>
@@ -49,67 +52,70 @@ function ResetPasswordForm() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-900 via-stone-800 to-stone-900 p-6">
-        <div className="max-w-md w-full bg-stone-800/50 backdrop-blur-xl border border-stone-700 p-8 rounded-3xl shadow-2xl text-center">
-          <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-2">Password Updated!</h1>
-          <p className="text-stone-400 mb-6">Your password has been reset successfully. Redirecting to login...</p>
+      <div className="min-h-screen flex items-center justify-center bg-background p-6">
+        <div className="max-w-md w-full bg-card border border-border-custom p-12 rounded-[40px] shadow-2xl text-center">
+          <CheckCircle2 className="w-16 h-16 text-emerald-500 mx-auto mb-6" />
+          <h1 className="text-3xl font-extrabold text-text-primary mb-3 font-serif">Password Updated</h1>
+          <p className="text-text-secondary text-lg">Your account security has been restored. Redirecting you to login now...</p>
+          <div className="mt-8 flex justify-center">
+            <Loader2 className="w-6 h-6 animate-spin text-emerald-500 opacity-50" />
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-900 via-stone-800 to-stone-900 p-6">
-      <div className="max-w-md w-full bg-stone-800/50 backdrop-blur-xl border border-stone-700 p-8 rounded-3xl shadow-2xl">
-        <header className="mb-8 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-500 mb-4">
-            <Lock size={32} />
+    <div className="min-h-screen flex items-center justify-center bg-background p-6">
+      <div className="max-w-md w-full bg-card border border-border-custom p-12 rounded-[40px] shadow-2xl">
+        <header className="mb-10 text-center">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-amber-500/10 text-amber-500 mb-6">
+            <Lock size={40} />
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">New Password</h1>
-          <p className="text-stone-400 text-sm">Please set a secure new password for your admin account.</p>
+          <h1 className="text-3xl font-extrabold text-text-primary mb-3 font-serif">Secure New Password</h1>
+          <p className="text-text-secondary text-base">Please set a strong password to protect your admin privileges.</p>
         </header>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-500/10 text-red-400 rounded-xl text-sm border border-red-500/30 flex items-center gap-3">
-            <AlertCircle size={18} />
+          <div className="mb-8 p-5 bg-red-500/10 text-red-500 rounded-2xl text-sm border border-red-500/20 flex items-center gap-3 font-bold">
+            <AlertCircle size={20} />
             {error}
           </div>
         )}
 
-        <form action={handleSubmit} className="space-y-5">
+        <form action={handleSubmit} className="space-y-6">
           <input type="hidden" name="token" value={token} />
           
           <div>
-            <label className="block text-xs font-bold uppercase tracking-widest text-stone-500 mb-2">New Password</label>
+            <label className="block text-[10px] font-extrabold uppercase tracking-widest text-text-secondary mb-3 ml-1">New Password</label>
             <input
               type="password"
               name="password"
               required
               minLength={8}
               placeholder="Min. 8 characters"
-              className="w-full px-4 py-3 bg-stone-900/50 border border-stone-700 rounded-xl text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all"
+              className="w-full px-6 py-4 bg-stone-50/50 dark:bg-stone-950/30 border border-border-custom rounded-2xl text-text-primary placeholder-text-secondary/30 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all font-bold"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-widest text-stone-500 mb-2">Confirm New Password</label>
+            <label className="block text-[10px] font-extrabold uppercase tracking-widest text-text-secondary mb-3 ml-1">Confirm New Password</label>
             <input
               type="password"
               name="confirmPassword"
               required
               minLength={8}
               placeholder="••••••••"
-              className="w-full px-4 py-3 bg-stone-900/50 border border-stone-700 rounded-xl text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all"
+              className="w-full px-6 py-4 bg-stone-50/50 dark:bg-stone-950/30 border border-border-custom rounded-2xl text-text-primary placeholder-text-secondary/30 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all font-bold"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold rounded-xl hover:from-amber-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all shadow-lg active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full py-5 px-6 bg-amber-600 text-white font-extrabold rounded-2xl hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all shadow-xl shadow-amber-500/20 active:scale-[0.98] disabled:opacity-50 disabled:grayscale flex items-center justify-center gap-3 uppercase text-xs tracking-widest"
           >
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Update Password"}
+            {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <>Update Password</>}
           </button>
         </form>
       </div>
