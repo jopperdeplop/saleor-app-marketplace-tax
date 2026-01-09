@@ -146,10 +146,6 @@ export default async function ApplicationDetailsPage({
               <button 
                 type="submit" 
                 className="px-6 py-3 bg-red-600 text-white rounded-xl text-sm font-bold uppercase tracking-widest hover:bg-red-700 transition-colors shadow-lg shadow-red-200 dark:shadow-none"
-                onClick={(e) => {
-                  // Note: Client-side confirmation doesn't work directly inside a server component 'form' action like this 
-                  // but in Next.js Server Actions with redirect, we rely on the user intent from clicking the button.
-                }}
               >
                 Delete Everything
               </button>
