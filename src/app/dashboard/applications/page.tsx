@@ -10,7 +10,6 @@ interface Application {
   email: string;
   vatNumber: string;
   country: string;
-  warehouseAddress: any;
   status: string;
   createdAt: string;
   processedAt: string | null;
