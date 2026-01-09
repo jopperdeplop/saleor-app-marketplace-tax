@@ -1,7 +1,8 @@
-import { getApplicationDetails, processApplication, deleteApplication } from "@/app/actions/admin";
+import { getApplicationDetails, processApplication } from "@/app/actions/admin";
 import { CheckCircle, XCircle, ChevronLeft, Building2, MapPin, Globe, Phone, FileText, Trash2, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { RedirectType, redirect } from "next/navigation";
+import { DeleteVendorButton } from "@/components/DeleteVendorButton";
 
 export default async function ApplicationDetailsPage({ 
   params 
@@ -129,7 +130,7 @@ export default async function ApplicationDetailsPage({
             <Trash2 size={18} className="text-red-600 dark:text-red-400" />
             <h2 className="font-bold text-red-700 dark:text-red-400">Danger Zone</h2>
           </div>
-          <div className="p-6 flex items-center justify-between">
+          <div className="p-6 flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="space-y-1">
               <p className="font-bold text-red-700 dark:text-red-400 flex items-center gap-2">
                 <AlertTriangle size={16} /> Delete Vendor Account & All Data
@@ -138,18 +139,7 @@ export default async function ApplicationDetailsPage({
                 This will permanently remove the vendor application, the user account, and all associated integrations. This action cannot be undone.
               </p>
             </div>
-            <form action={async () => {
-              "use server";
-              await deleteApplication(application.id);
-              redirect('/dashboard/applications');
-            }}>
-              <button 
-                type="submit" 
-                className="px-6 py-3 bg-red-600 text-white rounded-xl text-sm font-bold uppercase tracking-widest hover:bg-red-700 transition-colors shadow-lg shadow-red-200 dark:shadow-none"
-              >
-                Delete Everything
-              </button>
-            </form>
+            <DeleteVendorButton applicationId={application.id} />
           </div>
         </div>
       </div>
