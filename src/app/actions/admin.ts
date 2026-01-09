@@ -79,3 +79,11 @@ export async function getApplicationDetails(id: number | string) {
   if (!session) throw new Error("Unauthorized");
   return callPortalApi(`/api/admin/applications/${id}`, "GET", null);
 }
+
+export async function deleteApplication(id: number | string) {
+  const session = await auth();
+  if (!session) throw new Error("Unauthorized");
+
+  await callPortalApi(`/api/admin/applications/${id}`, "DELETE", null);
+  revalidatePath("/dashboard/applications");
+}

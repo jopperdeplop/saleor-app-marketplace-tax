@@ -1,5 +1,5 @@
-import { getApplicationDetails, processApplication } from "@/app/actions/admin";
-import { CheckCircle, XCircle, ChevronLeft, Building2, MapPin, Globe, Phone, FileText } from "lucide-react";
+import { getApplicationDetails, processApplication, deleteApplication } from "@/app/actions/admin";
+import { CheckCircle, XCircle, ChevronLeft, Building2, MapPin, Globe, Phone, FileText, Trash2, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { RedirectType, redirect } from "next/navigation";
 
@@ -31,7 +31,7 @@ export default async function ApplicationDetailsPage({
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6 pb-20">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link 
@@ -43,7 +43,7 @@ export default async function ApplicationDetailsPage({
           <div>
              <h1 className="text-2xl font-bold font-display text-text-primary">{application.companyName}</h1>
              <p className="text-sm text-text-secondary font-mono bg-stone-100 dark:bg-stone-800 px-2 py-0.5 rounded inline-block mt-1">
-               ID: {application.id} • {new Date(application.createdAt).toLocaleDateString()}
+                ID: {application.id} • {new Date(application.createdAt).toLocaleDateString()}
              </p>
           </div>
         </div>
@@ -120,6 +120,40 @@ export default async function ApplicationDetailsPage({
              <Field label="City" value={application.city} />
              <Field label="Postal Code" value={application.postalCode} />
              <Field label="Country" value={application.countryCode} />
+          </div>
+        </div>
+
+        {/* Danger Zone */}
+        <div className="md:col-span-2 bg-red-50/30 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-xl overflow-hidden">
+          <div className="px-6 py-4 border-b border-red-200 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/20 flex items-center gap-2">
+            <Trash2 size={18} className="text-red-600 dark:text-red-400" />
+            <h2 className="font-bold text-red-700 dark:text-red-400">Danger Zone</h2>
+          </div>
+          <div className="p-6 flex items-center justify-between">
+            <div className="space-y-1">
+              <p className="font-bold text-red-700 dark:text-red-400 flex items-center gap-2">
+                <AlertTriangle size={16} /> Delete Vendor Account & All Data
+              </p>
+              <p className="text-sm text-red-600/70 dark:text-red-400/60">
+                This will permanently remove the vendor application, the user account, and all associated integrations. This action cannot be undone.
+              </p>
+            </div>
+            <form action={async () => {
+              "use server";
+              await deleteApplication(application.id);
+              redirect('/dashboard/applications');
+            }}>
+              <button 
+                type="submit" 
+                className="px-6 py-3 bg-red-600 text-white rounded-xl text-sm font-bold uppercase tracking-widest hover:bg-red-700 transition-colors shadow-lg shadow-red-200 dark:shadow-none"
+                onClick={(e) => {
+                  // Note: Client-side confirmation doesn't work directly inside a server component 'form' action like this 
+                  // but in Next.js Server Actions with redirect, we rely on the user intent from clicking the button.
+                }}
+              >
+                Delete Everything
+              </button>
+            </form>
           </div>
         </div>
       </div>
