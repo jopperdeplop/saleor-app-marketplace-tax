@@ -73,3 +73,9 @@ export async function updatePortalUser(id: string | number, updates: any) {
   await callPortalApi("/api/admin/users", "PATCH", { id, ...updates });
   revalidatePath("/dashboard/portal-users");
 }
+
+export async function getApplicationDetails(id: number | string) {
+  const session = await auth();
+  if (!session) throw new Error("Unauthorized");
+  return callPortalApi(`/api/admin/applications/${id}`, "GET", null);
+}
