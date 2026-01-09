@@ -87,3 +87,18 @@ export async function deleteApplication(id: number | string) {
   await callPortalApi(`/api/admin/applications/${id}`, "DELETE", null);
   revalidatePath("/dashboard/applications");
 }
+
+export async function getPortalUserDetails(id: number | string) {
+  const session = await auth();
+  if (!session) throw new Error("Unauthorized");
+  return callPortalApi(`/api/admin/users/${id}`, "GET", null);
+}
+
+export async function deletePortalUser(id: number | string) {
+  const session = await auth();
+  if (!session) throw new Error("Unauthorized");
+
+  await callPortalApi(`/api/admin/users/${id}`, "DELETE", null);
+  revalidatePath("/dashboard/portal-users");
+}
+

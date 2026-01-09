@@ -82,12 +82,12 @@ export default function ClientPortalUserList({ initialUsers }: { initialUsers: P
                     filteredUsers.map(user => (
                         <tr key={user.id} className="group hover:bg-stone-50 dark:hover:bg-stone-800/20 transition-colors">
                             <td className="px-8 py-4">
-                                <div className="flex items-center gap-3">
+                                <Link href={user.isLocalOnly ? '#' : `/dashboard/portal-users/${user.id}`} className={`flex items-center gap-3 ${user.isLocalOnly ? 'cursor-not-allowed' : 'hover:opacity-80'}`}>
                                     <div className="w-10 h-10 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-text-secondary">
                                         <User size={20} />
                                     </div>
                                     <div>
-                                        <div className="font-bold text-text-primary">{user.name}</div>
+                                        <div className="font-bold text-text-primary hover:underline">{user.name}</div>
                                         <div className="text-xs text-text-secondary flex items-center gap-2">
                                             {user.email}
                                             {user.isLocalOnly && (
@@ -97,7 +97,7 @@ export default function ClientPortalUserList({ initialUsers }: { initialUsers: P
                                             )}
                                         </div>
                                     </div>
-                                </div>
+                                </Link>
                             </td>
                             <td className="px-8 py-4">
                                 <div className="font-medium text-text-primary">{user.brand || "Internal"}</div>
