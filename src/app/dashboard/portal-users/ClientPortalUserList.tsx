@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { Search, RefreshCw, KeyRound, Shield, User, RotateCcw } from "lucide-react";
 import Link from "next/link";
-import { triggerPortalPasswordReset } from "@/app/actions/admin";
+import { triggerPortalPasswordReset, deletePortalUser } from "@/app/actions/admin";
+import { deleteLocalVendor } from "@/app/actions";
+import { Trash2 } from "lucide-react";
 
 interface PortalUser {
   id: string;
@@ -38,6 +40,26 @@ export default function ClientPortalUserList({ initialUsers }: { initialUsers: P
       alert("Failed to send reset email.");
     } finally {
       setResettingMap(prev => ({ ...prev, [email]: false }));
+    }
+  };
+
+  const handleDelete = async (user: PortalUser) => {
+    const type = user.isLocalOnly ? "local vendor profile" : "portal user account";
+    if (!confirm(`Are you sure you want to delete this ${type} (${user.name})?`)) return;
+
+    try {
+      if (user.isLocalOnly) {
+        if (!user.brand) throw new Error("Missing brand slug for local vendor");
+        await deleteLocalVendor(user.brand);
+      } else {
+        await deletePortalUser(user.id);
+      }
+      alert("Successfully deleted.");
+      // Refresh the page to show updated list
+      window.location.reload();
+    } catch (error) {
+      console.error("Delete failed:", error);
+      alert("Failed to delete. " + (error as any).message);
     }
   };
 
@@ -82,7 +104,7 @@ export default function ClientPortalUserList({ initialUsers }: { initialUsers: P
                     filteredUsers.map(user => (
                         <tr key={user.id} className="group hover:bg-stone-50 dark:hover:bg-stone-800/20 transition-colors">
                             <td className="px-8 py-4">
-                                <Link href={user.isLocalOnly ? '#' : `/dashboard/portal-users/${user.id}`} className={`flex items-center gap-3 ${user.isLocalOnly ? 'cursor-not-allowed' : 'hover:opacity-80'}`}>
+                                <Link href={user.isLocalOnly ? `/dashboard/vendor/${encodeURIComponent(user.brand || '')}` : `/dashboard/portal-users/${user.id}`} className={`flex items-center gap-3 hover:opacity-80`}>
                                     <div className="w-10 h-10 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-text-secondary">
                                         <User size={20} />
                                     </div>
@@ -123,10 +145,17 @@ export default function ClientPortalUserList({ initialUsers }: { initialUsers: P
                                      <button
                                          onClick={() => handleReset(user.email)}
                                          disabled={resettingMap[user.email] || user.isLocalOnly}
-                                         className="inline-flex items-center gap-2 px-3 py-2 bg-stone-100 dark:bg-stone-800 hover:bg-red-500/10 hover:text-red-500 text-text-primary rounded-lg text-[10px] font-extrabold uppercase tracking-widest transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                         className="inline-flex items-center gap-2 px-3 py-2 bg-stone-100 dark:bg-stone-800 hover:bg-orange-500/10 hover:text-orange-500 text-text-primary rounded-lg text-[10px] font-extrabold uppercase tracking-widest transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                                      >
                                          <RotateCcw size={14} className={resettingMap[user.email] ? "animate-spin" : ""} />
                                          {resettingMap[user.email] ? "..." : "Reset"}
+                                     </button>
+                                     <button
+                                         onClick={() => handleDelete(user)}
+                                         className="inline-flex items-center gap-2 px-3 py-2 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg text-[10px] font-extrabold uppercase tracking-widest transition-colors border border-red-200 dark:border-red-900/30"
+                                     >
+                                         <Trash2 size={14} />
+                                         Delete
                                      </button>
                                 </div>
                             </td>

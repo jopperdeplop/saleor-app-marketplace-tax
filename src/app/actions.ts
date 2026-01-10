@@ -134,7 +134,7 @@ export async function syncVendors() {
         const typeName = (page.pageType?.name || "").toLowerCase();
         const slug = (page.slug || "").toLowerCase();
 
-        if (typeName.includes("brand") || slug === "saleordevelopmentstore") {
+        if (typeName.includes("brand")) {
           vendors.push({ id: page.slug, name: page.title });
           console.log(`[SYNC] HIT: "${page.title}"`);
         }
@@ -219,6 +219,14 @@ export async function syncVendors() {
 
   revalidatePath("/");
   return { success: true, count: uniqueVendors.length };
+}
+
+export async function deleteLocalVendor(brandSlug: string) {
+  await prisma.vendorProfile.delete({
+    where: { brandAttributeValue: brandSlug },
+  });
+  revalidatePath("/dashboard/portal-users");
+  revalidatePath("/");
 }
 
 
